@@ -1,11 +1,14 @@
 package edu.illinois.cs.cogcomp.cooccurancedata.datastructures;
 
-public class WinogradCorefInstance {
+import java.io.Serializable;
+
+public class WinogradCorefInstance implements Serializable {
 	// to be filled in when reading the data 
 	public String sentence; 
 	public String pronoun; 
 	public String antecedent1; 
 	public String antecedent2; 
+	public String correct_antecedent; 
 	public int test_or_train; // 1: test   0: train 
 	
 	// to be filled in, after preprocessing 
@@ -19,4 +22,7 @@ public class WinogradCorefInstance {
 	
 	// curator annotation into bytes 
 	public static byte[] textAnnotation; 
+	
 }
+
+
