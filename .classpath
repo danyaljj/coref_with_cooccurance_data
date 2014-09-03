@@ -2,17 +2,17 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/coreUtilities-0.1.6.jar"/>
-	<classpathentry kind="lib" path="lib/curator-client-0.6.jar"/>
-	<classpathentry kind="lib" path="lib/curator-interfaces-0.7.jar"/>
-	<classpathentry kind="lib" path="lib/edison-0.5.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.2.4-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.2.4-sources.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.2.4.jar"/>
-	<classpathentry kind="lib" path="lib/LBJ-2.8.2.jar"/>
-	<classpathentry kind="lib" path="lib/LBJLibrary-2.8.2.jar"/>
-	<classpathentry kind="lib" path="lib/libthrift-0.4.jar"/>
-	<classpathentry kind="lib" path="lib/libthrift-0.8.0.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/coreUtilities-0.1.6.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/curator-client-0.6.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/curator-interfaces-0.7.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/edison-0.5.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/gson-2.2.4-javadoc.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/gson-2.2.4-sources.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/LBJ-2.8.2.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/LBJLibrary-2.8.2.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/libthrift-0.4.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/libthrift-0.8.0.jar"/>
+	<classpathentry kind="lib" path="/shared/experiments/hpeng7/src/coref_with_cooccurance_data/lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

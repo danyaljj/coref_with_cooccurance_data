@@ -45,7 +45,7 @@ public class PronounDisambiguationDataReader {
 	public static void Read_from_file(String file) throws FileNotFoundException, IOException { 
 
 		int lineIter = 0; 
-		try(BufferedReader br = new BufferedReader(new FileReader(file))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			String line = ""; 
 
 			WinogradCorefInstance ins = new WinogradCorefInstance();
