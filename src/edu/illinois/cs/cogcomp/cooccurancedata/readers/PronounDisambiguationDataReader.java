@@ -25,7 +25,7 @@ import edu.illinois.cs.cogcomp.thrift.base.ServiceUnavailableException;
 
 public class PronounDisambiguationDataReader {
 
-	static List<WinogradCorefInstance> allInstances = new ArrayList<WinogradCorefInstance>(); 
+	public static List<WinogradCorefInstance> allInstances = new ArrayList<WinogradCorefInstance>(); 
 	static String train_file = "/shared/shelley/khashab2/CorporaAndDumps/Altaf_Ng_2012_Pronoun_Resolution/train.c.txt"; 
 	static String test_file = "/shared/shelley/khashab2/CorporaAndDumps/Altaf_Ng_2012_Pronoun_Resolution/test.c.txt";
 	static String cache_file = "/shared/shelley/khashab2/CorporaAndDumps/Altaf_Ng_2012_Pronoun_Resolution/cached_data.bin";

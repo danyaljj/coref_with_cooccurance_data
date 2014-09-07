@@ -14,8 +14,7 @@ public class ReaderTest {
 	public static void main(String[] argc) throws Exception { 
 		NarrativeSchemaReader nsreader=new NarrativeSchemaReader();
 		ArrayList<NarrativeSchemaInstance> allInstances = nsreader.readSchema(6); // 6,8,10,12
-		HashMap<Pair<String,String>,Integer> verbOrderMap=nsreader.readVerbOrdering();
+		HashMap<Pair<String,String>,Integer> verbOrderMap = nsreader.readVerbOrdering();
 		printingNarrativeSchemaInstance.print(allInstances.get(allInstances.size()-1));
 	}
-
 }
