@@ -21,8 +21,6 @@ public class WinogradCorefInstance implements Serializable {
 	public int antecedent2_word_offset; 
 	
 	// curator annotation into bytes 
-	public static byte[] textAnnotation; 
-	
+	public byte[] textAnnotation; 
+	public String textAnnotation_string;
 }
-
-

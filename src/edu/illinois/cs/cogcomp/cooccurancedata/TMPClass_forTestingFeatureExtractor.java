@@ -10,17 +10,31 @@ public class TMPClass_forTestingFeatureExtractor {
 	public static void main(String[] argc) {
 		// read data
 		PronounDisambiguationDataReader rd = new PronounDisambiguationDataReader(); 
-		try {
-			rd.Read_all_instances();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		rd.deserializeData();
 		
 		// extract the verbs 
-		for( WinogradCorefInstance ins : rd.allInstances ) { 
+		FeatureExtractor fe = new FeatureExtractor( rd.allInstances.get(0) );
+		
+		fe.getVerbGivenMention(fe.ins.antecedent1);
+		
+		fe.getVerbGivenMention(fe.ins.antecedent2);
+		
+		fe.getVerbGivenMention(fe.ins.pronoun);
+		
+		
+		/*try {
+			fe.extractVerbs();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
+		//fe = new FeatureExtractor( rd.allInstances.get(1) );
+		//fe.extractVerbs();
+		
+		/*for( WinogradCorefInstance ins : rd.allInstances ) { 
 			FeatureExtractor fe = new FeatureExtractor( ins ); 
 			fe.extractVerbs();
-		}
-	}	
+		}*/
+	}
 }

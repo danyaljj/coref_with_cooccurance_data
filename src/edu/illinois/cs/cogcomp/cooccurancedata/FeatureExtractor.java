@@ -1,6 +1,15 @@
 package edu.illinois.cs.cogcomp.cooccurancedata;
 
+import java.util.List;
+import java.util.Set;
+
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance;
+import edu.illinois.cs.cogcomp.edison.sentences.Constituent;
+import edu.illinois.cs.cogcomp.edison.sentences.EdisonSerializationHelper;
+import edu.illinois.cs.cogcomp.edison.sentences.Relation;
+import edu.illinois.cs.cogcomp.edison.sentences.TextAnnotation;
+import edu.illinois.cs.cogcomp.edison.sentences.TextAnnotationUtilities;
+import edu.illinois.cs.cogcomp.edison.sentences.View;
 
 public class FeatureExtractor {
 	static public WinogradCorefInstance ins; 
@@ -28,19 +37,60 @@ public class FeatureExtractor {
 		this.ins = ins; 
 	}
 	
-	public static void extractConnective() {
+	public void extractConnective() {
 		// Haoruo 
 	}
 	
-	public static void extractVerbs() { 
+	public void extractVerbs() throws Exception { 
+		
+		/*TextAnnotation ta = EdisonSerializationHelper.deserializeFromBytes( ins.textAnnotation ); 
+		Set<String> va = ta.getAvailableViews();
+		for(String str : va) 
+			System.out.println( "str = " + str ); */ 
+	}
+	
+	public String getVerbGivenMention(String str) { 
+		
+		System.out.println("mention = " + str );
+		System.out.println("Sentence = " + ins.sentence );
+		
+		String verb = ""; 
+		TextAnnotation ta = null; 
+		try {
+			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		View srlvu = ta.getView("SRL"); 
+		
+		// find constituent  
+		List<Constituent> consts = srlvu.getConstituents(); 
+		for( Constituent conIns : consts )
+		{ 
+			if( conIns.getSurfaceString().equals(str) )
+			{ 
+				List<Relation> incomRel = conIns.getIncomingRelations();
+				System.out.println("Size of the relations = " + incomRel.size() ); 
+				for( Relation rel : incomRel)
+				{ 
+					System.out.println("rel.getSource().getSurfaceString() = " + rel.getSource().getSurfaceString() );
+				}
+			}
+		}
+		
+		
+		// find relation
+		
+		return verb; 
+	}
+	
+	public void extractAdjectives() { 
 		// Daniel 
 	}
 	
-	public static void extractAdjectives() { 
-		// Daniel 
-	}
-	
-	public static void Extract() { 
+	public void Extract() { 
 		// the final extraction algorithm here 
 	}
 }
