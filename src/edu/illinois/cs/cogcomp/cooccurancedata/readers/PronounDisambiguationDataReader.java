@@ -245,45 +245,44 @@ public class PronounDisambiguationDataReader {
 
 	public static void Read_from_file(String file) throws FileNotFoundException, IOException { 
 
-		int lineIter = 0; 
-		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			String line = ""; 
+		int lineIter = 0;
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		String line = ""; 
+		
+		WinogradCorefInstance ins = new WinogradCorefInstance();
+		while (line != null) {
+			line = br.readLine();
+			//System.out.println("---Line : " + line);
 
-			WinogradCorefInstance ins = new WinogradCorefInstance();
-			while (line != null) {
-				line = br.readLine();
-				//System.out.println("---Line : " + line);
-
-				if( lineIter % 5 == 0 )	{ 
-					ins.sentence = line; 
-					//System.out.println("Sentence");
-				}
-				else if( lineIter % 5 == 1 )	{ 
-					ins.pronoun = line; 
-					//System.out.println("Pronoun");
-				}
-				else if( lineIter % 5 == 2 )	{ 
-					int ind = line.indexOf(','); 
-					ins.antecedent1 = line.substring(0, ind); 
-					ins.antecedent2 = line.substring(ind+1);
-					//System.out.println("Ant1");
-				}
-				else if( lineIter % 5 == 3 )	{ 
-					ins.correct_antecedent = line; 
-					//System.out.println("Ant2");
-				}
-				else {
-					if( file.toLowerCase().contains("train") )
-						ins.test_or_train = 1; 
-					else 
-						ins.test_or_train = 0;
-					//printWinogradInstance.print(ins);
-					allInstances.add(ins);
-					ins = new WinogradCorefInstance();
-					//System.out.println("Adding it! ");
-				}
-				lineIter++;
+			if( lineIter % 5 == 0 )	{ 
+				ins.sentence = line; 
+				//System.out.println("Sentence");
 			}
+			else if( lineIter % 5 == 1 )	{ 
+				ins.pronoun = line; 
+				//System.out.println("Pronoun");
+			}
+			else if( lineIter % 5 == 2 )	{ 
+				int ind = line.indexOf(','); 
+				ins.antecedent1 = line.substring(0, ind); 
+				ins.antecedent2 = line.substring(ind+1);
+				//System.out.println("Ant1");
+			}
+			else if( lineIter % 5 == 3 )	{ 
+				ins.correct_antecedent = line; 
+				//System.out.println("Ant2");
+			}
+			else {
+				if( file.toLowerCase().contains("train") )
+					ins.test_or_train = 1; 
+				else 
+					ins.test_or_train = 0;
+				//printWinogradInstance.print(ins);
+				allInstances.add(ins);
+				ins = new WinogradCorefInstance();
+				//System.out.println("Adding it! ");
+			}
+			lineIter++;
 		}
 	}
 
@@ -385,9 +384,13 @@ public class PronounDisambiguationDataReader {
 				//System.out.println(ins.textAnnotation); 
 //				if( iter > 10 )
 //					break; 
-			} catch (ServiceUnavailableException | AnnotationFailedException
-					| TException | IOException e) {
-				// TODO Auto-generated catch block
+			} catch (ServiceUnavailableException e) {
+				e.printStackTrace();
+			} catch (AnnotationFailedException e) {
+				e.printStackTrace();
+			} catch (TException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			iter++;
@@ -431,9 +434,13 @@ public class PronounDisambiguationDataReader {
 				allInstances_withAntecedentAnnotations.get(iter).textAnnotation_ant1 = EdisonSerializationHelper.serializeToBytes(ta);
 				allInstances_withAntecedentAnnotations.get(iter).textAnnotation_string_ant1 = EdisonSerializationHelper.serializeToJson(ta);
 				
-			} catch (ServiceUnavailableException | AnnotationFailedException
-					| TException | IOException e) {
-				// TODO Auto-generated catch block
+			} catch (ServiceUnavailableException e) {
+				e.printStackTrace();
+			} catch (AnnotationFailedException e) {
+				e.printStackTrace();
+			} catch (TException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			iter++;
@@ -464,9 +471,13 @@ public class PronounDisambiguationDataReader {
 				allInstances_withAntecedentAnnotations.get(iter).textAnnotation_ant2 = EdisonSerializationHelper.serializeToBytes(ta);
 				allInstances_withAntecedentAnnotations.get(iter).textAnnotation_string_ant2 = EdisonSerializationHelper.serializeToJson(ta);
 				
-			} catch (ServiceUnavailableException | AnnotationFailedException
-					| TException | IOException e) {
-				// TODO Auto-generated catch block
+			} catch (ServiceUnavailableException e) {
+				e.printStackTrace();
+			} catch (AnnotationFailedException e) {
+				e.printStackTrace();
+			} catch (TException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			iter++;
@@ -497,9 +508,13 @@ public class PronounDisambiguationDataReader {
 				allInstances_withAntecedentAnnotations.get(iter).textAnnotation_pronoun = EdisonSerializationHelper.serializeToBytes(ta);
 				allInstances_withAntecedentAnnotations.get(iter).textAnnotation_string_pronoun = EdisonSerializationHelper.serializeToJson(ta);
 				
-			} catch (ServiceUnavailableException | AnnotationFailedException
-					| TException | IOException e) {
-				// TODO Auto-generated catch block
+			} catch (ServiceUnavailableException e) {
+				e.printStackTrace();
+			} catch (AnnotationFailedException e) {
+				e.printStackTrace();
+			} catch (TException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			iter++;
@@ -554,10 +569,10 @@ public class PronounDisambiguationDataReader {
 			System.out.println("Done reading the data from " + cache_file_withSRL);
 			in.close();
 			fileIn.close();
-		} catch(IOException | ClassNotFoundException i)
-		{
-			i.printStackTrace();
-			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -572,10 +587,10 @@ public class PronounDisambiguationDataReader {
 			System.out.println("Done reading the data from " + cache_file_withSRL_withAnts);
 			in.close();
 			fileIn.close();
-		} catch(IOException | ClassNotFoundException i)
-		{
-			i.printStackTrace();
-			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 }

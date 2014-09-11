@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.cooccurancedata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,9 +39,21 @@ public class FeatureExtractor {
 	}
 	
 	public void extractConnective() {
-		// Haoruo 
+		// Just Hack
+		// should tokenize
+		// in the middle , then check the beginning of the sentence
+		// check pos
+		ArrayList<String> connectives = connectiveSetup();
+		
 	}
 	
+	public void extractHeadNoun() {
+		// should tokenize
+		// use MD to detect head noun
+		ArrayList<String> connectives = connectiveSetup();
+		
+	}
+
 	public void extractVerbs() throws Exception { 
 		
 		/*TextAnnotation ta = EdisonSerializationHelper.deserializeFromBytes( ins.textAnnotation ); 
@@ -92,5 +105,31 @@ public class FeatureExtractor {
 	
 	public void Extract() { 
 		// the final extraction algorithm here 
+	}
+	
+	public ArrayList<String> connectiveSetup() {
+		ArrayList<String> connectives = new ArrayList<String>();
+		connectives.add("even though");
+		connectives.add("out of");
+		connectives.add("so that");
+		connectives.add("as if");
+		connectives.add("because"); // prior before "when"
+		connectives.add("so");
+		connectives.add("although");
+		connectives.add("though");
+		connectives.add("but");
+		connectives.add("unless");
+		connectives.add("since");
+		connectives.add("before");
+		connectives.add("after");
+		connectives.add("until");
+		connectives.add("when");
+		connectives.add("that");
+		connectives.add("about");
+		connectives.add("as");
+		connectives.add("if");
+		connectives.add("what");
+		connectives.add("and");
+		return connectives;
 	}
 }
