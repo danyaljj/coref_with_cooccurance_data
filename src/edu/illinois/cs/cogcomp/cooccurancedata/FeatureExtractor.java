@@ -44,6 +44,7 @@ public class FeatureExtractor {
 		// in the middle , then check the beginning of the sentence
 		// check pos
 		ArrayList<String> connectives = connectiveSetup();
+		connectiveSetup();
 		
 	}
 	
