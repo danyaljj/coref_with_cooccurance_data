@@ -12,15 +12,12 @@ public class TMPClass_forTestingFeatureExtractor {
 		PronounDisambiguationDataReader rd = new PronounDisambiguationDataReader(); 
 		rd.deserializeData();
 		
-		// extract the verbs 
-		FeatureExtractor fe = new FeatureExtractor( rd.allInstances.get(0) );
-		
-		fe.getVerbGivenMention(fe.ins.antecedent1);
-		
-		fe.getVerbGivenMention(fe.ins.antecedent2);
-		
-		fe.getVerbGivenMention(fe.ins.pronoun);
-		
+		// extract the connectives
+		FeatureExtractor fe = new FeatureExtractor();
+		for (int i=0;i<rd.allInstances.size();i++) {
+			fe.setInstance(rd.allInstances.get(i));
+			fe.extractConnective();
+		}
 		
 		/*try {
 			fe.extractVerbs();

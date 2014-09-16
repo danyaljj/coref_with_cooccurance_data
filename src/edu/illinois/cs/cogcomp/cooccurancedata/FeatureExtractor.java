@@ -25,38 +25,75 @@ public class FeatureExtractor {
 	public int antecend2_adjective_start_char_offset; 
 	public int antecend2_adjective_end_char_offset; 
 	
-	public int connective_word_offset; 
+	public int connective_word_start_word_offset;
+	public int connective_word_end_word_offset;
+
 	public int connective_adjective_end_word_offset; 
 	public int connective_adjective_start_char_offset; 
 	public int connective_adjective_end_char_offset; 
 	
+	private ArrayList<String> connectives = new ArrayList<String>();
+	
 	public FeatureExtractor() { 
-		// nothing 
+		connectiveSetup();
 	}
 	
-	public FeatureExtractor( WinogradCorefInstance ins ) { 
-		this.ins = ins; 
+	public void setInstance( WinogradCorefInstance ins ) { 
+		this.ins = ins;
 	}
 	
 	public void extractConnective() {
 		// Just Hack
-		// should tokenize
-		// in the middle , then check the beginning of the sentence
-		// check pos
-		ArrayList<String> connectives = connectiveSetup();
-		connectiveSetup();
+		// check for token ? all the pronoun_char_offset
+		boolean flag=false;
+		String connective="";
+		// error in pronoun char_offset
+		if (ins.antecedent2_char_offset>=ins.pronoun_char_offset) {
+			//System.out.println("Error:"+ins.sentence+" "+ins.antecedent2_char_offset+" "+ins.pronoun_char_offset);
+			return;
+		}
+		// check in the middle
+		String str=ins.sentence.substring(ins.antecedent2_char_offset,ins.pronoun_char_offset).toLowerCase();
+		for (int i=0;i<connectives.size();i++) {
+			if (str.contains(connectives.get(i))) {
+				flag=true;
+				connective=connectives.get(i);
+				//System.out.println(connective+" : "+ins.sentence);
+				break;
+			}
+		}
+		// check the beginning
+		str=ins.sentence.substring(0,ins.antecedent1_char_offset).toLowerCase();
+		if (!flag) {
+			for (int i=0;i<connectives.size();i++) {
+				if (str.contains(connectives.get(i))) {
+					flag=true;
+					connective=connectives.get(i);
+					//System.out.println(connective+" : "+ins.sentence);
+					break;
+				}
+			}
+		}
+		// match to token
 		
+		if (!flag) {
+			System.out.println(ins.sentence);
+		}
 	}
 	
 	public void extractHeadNoun() {
-		// should tokenize
+		TextAnnotation ta = null; 
+		try {
+			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// use MD to detect head noun
-		ArrayList<String> connectives = connectiveSetup();
 		
 	}
 
 	public void extractVerbs() throws Exception { 
-		
 		/*TextAnnotation ta = EdisonSerializationHelper.deserializeFromBytes( ins.textAnnotation ); 
 		Set<String> va = ta.getAvailableViews();
 		for(String str : va) 
@@ -108,8 +145,7 @@ public class FeatureExtractor {
 		// the final extraction algorithm here 
 	}
 	
-	public ArrayList<String> connectiveSetup() {
-		ArrayList<String> connectives = new ArrayList<String>();
+	public void connectiveSetup() {
 		connectives.add("even though");
 		connectives.add("out of");
 		connectives.add("so that");
@@ -118,6 +154,7 @@ public class FeatureExtractor {
 		connectives.add("so");
 		connectives.add("although");
 		connectives.add("though");
+		connectives.add("however");
 		connectives.add("but");
 		connectives.add("unless");
 		connectives.add("since");
@@ -125,12 +162,17 @@ public class FeatureExtractor {
 		connectives.add("after");
 		connectives.add("until");
 		connectives.add("when");
+		connectives.add("while");
 		connectives.add("that");
 		connectives.add("about");
 		connectives.add("as");
 		connectives.add("if");
 		connectives.add("what");
+		connectives.add("where");
 		connectives.add("and");
-		return connectives;
+		connectives.add("or");
+		connectives.add("then");
+		connectives.add("thus");
+		connectives.add("hence");
 	}
 }
