@@ -45,6 +45,7 @@ public class FeatureExtractor {
 	public void extractConnective() {
 		// Just Hack
 		// check for token ? all the pronoun_char_offset
+		// should we just care about string ?
 		boolean flag=false;
 		String connective="";
 		// error in pronoun char_offset
@@ -89,8 +90,11 @@ public class FeatureExtractor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// use MD to detect head noun
-		
+		ta.getTokens();
+		ta.getToken(0);
+		// last token
+		// if Capitalized, then check the token before, not "a, the, an"
+		// special case for containing "of"
 	}
 
 	public void extractVerbs() throws Exception { 
