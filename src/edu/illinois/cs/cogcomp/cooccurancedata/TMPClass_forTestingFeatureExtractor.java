@@ -10,12 +10,12 @@ public class TMPClass_forTestingFeatureExtractor {
 	public static void main(String[] argc) {
 		// read data
 		PronounDisambiguationDataReader rd = new PronounDisambiguationDataReader(); 
-		rd.deserializeData();
+		rd.deserializeData2();
 		
 		// extract the connectives
 		FeatureExtractor fe = new FeatureExtractor();
-		for (int i=0;i<rd.allInstances.size();i++) {
-			fe.setInstance(rd.allInstances.get(i));
+		for (int i=0;i<rd.allInstances_withAntecedentAnnotations.size();i++) {
+			fe.setInstance(rd.allInstances_withAntecedentAnnotations.get(i));
 			fe.extractConnective();
 		}
 		

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance;
+import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance2;
 import edu.illinois.cs.cogcomp.edison.sentences.Constituent;
 import edu.illinois.cs.cogcomp.edison.sentences.EdisonSerializationHelper;
 import edu.illinois.cs.cogcomp.edison.sentences.Relation;
@@ -13,7 +14,7 @@ import edu.illinois.cs.cogcomp.edison.sentences.TextAnnotationUtilities;
 import edu.illinois.cs.cogcomp.edison.sentences.View;
 
 public class FeatureExtractor {
-	static public WinogradCorefInstance ins; 
+	static public WinogradCorefInstance2 ins; 
 	
 	public int antecend1_verb_start_word_offset; 
 	public int antecend1_verb_end_word_offset; 
@@ -28,17 +29,13 @@ public class FeatureExtractor {
 	public int connective_word_start_word_offset;
 	public int connective_word_end_word_offset;
 
-	public int connective_adjective_end_word_offset; 
-	public int connective_adjective_start_char_offset; 
-	public int connective_adjective_end_char_offset; 
-	
 	private ArrayList<String> connectives = new ArrayList<String>();
 	
 	public FeatureExtractor() { 
 		connectiveSetup();
 	}
 	
-	public void setInstance( WinogradCorefInstance ins ) { 
+	public void setInstance( WinogradCorefInstance2 ins ) { 
 		this.ins = ins;
 	}
 	
