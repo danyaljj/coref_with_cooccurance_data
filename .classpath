@@ -14,5 +14,7 @@
 	<classpathentry kind="lib" path="lib/libthrift-0.4.jar"/>
 	<classpathentry kind="lib" path="lib/libthrift-0.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/jnisvmlight.jar"/>
+	<classpathentry kind="lib" path="lib/coreUtilities-0.1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
