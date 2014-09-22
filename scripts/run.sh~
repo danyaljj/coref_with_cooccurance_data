@@ -1,1 +1,0 @@
-java -Xmx8g -cp bin/:lib/* edu.illinois.cs.cogcomp.md.main.Test /shared/experiments/hpeng7/data/ERE/data/  testERE/testfiles.txt
