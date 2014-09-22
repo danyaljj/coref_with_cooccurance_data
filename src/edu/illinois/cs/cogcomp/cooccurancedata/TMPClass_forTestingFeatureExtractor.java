@@ -17,6 +17,7 @@ public class TMPClass_forTestingFeatureExtractor {
 		for (int i=0;i<rd.allInstances_withAntecedentAnnotations.size();i++) {
 			fe.setInstance(rd.allInstances_withAntecedentAnnotations.get(i));
 			fe.extractConnective();
+			fe.extractHeadNoun();
 		}
 		
 		/*try {
