@@ -87,7 +87,7 @@ public class FeatureExtractor {
 			e.printStackTrace();
 		}
 
-		boolean flag=false;
+		boolean flag = false;
 		
 		// check in the middle
 		for (int i=ins.antecedent2_token_end;i<ins.pronoun_word_start;i++) {
