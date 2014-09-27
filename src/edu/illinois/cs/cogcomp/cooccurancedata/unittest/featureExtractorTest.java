@@ -27,12 +27,14 @@ public class featureExtractorTest {
 		int instance_num = 0; 
 		for( WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations )
 		{ 
+			System.out.println("---------------------------"); 
+			System.out.println("ins.sentence = " + ins.sentence); 
 			FeatureExtractor fe = new FeatureExtractor(); 
 			fe.setInstance( ins ); 
 			fe.setInstanceNumber( instance_num ); 
 			fe.setPreprocessor( fp ); 
 			fe.setTheVerbIndices(); 
-			fe.extractHeadNoun(); 
+			fe.extractHeadNoun();  
 			fe.extractConnective(); 
 			int[] featureVector = new int[0]; 
 			try {

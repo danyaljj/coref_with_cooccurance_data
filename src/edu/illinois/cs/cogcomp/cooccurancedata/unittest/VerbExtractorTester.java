@@ -44,14 +44,15 @@ public class VerbExtractorTester {
 			for( int j = ant_verb_index.getFirst(); j < ant_verb_index.getSecond(); j++ )
 				verb += " " + toks[j]; 
 			System.out.println("Ant Verb = " +  verb );
+			System.out.println("Ant verb index = " + ant_verb_index );
 			
 			Pair<Integer, Integer> pro_verb_index = fp.getVerbTokenIndexGivenInstanceIndex_pronoun(i);
 			verb = ""; 
 			for( int j = pro_verb_index.getFirst(); j < pro_verb_index.getSecond(); j++ )
 				verb += " " + toks[j]; 
-			System.out.println("Pronoun Verb = " +  verb );
-		
-			System.out.println("Verb = " + fp.getVerbTokenIndexGivenInstanceIndex_antecedant(i) );
+			System.out.println("Pronoun Verb = " +  verb );	
+			System.out.println("Pronoun verb index = " + pro_verb_index );
+			System.out.println("------------------------------------------------------"); 
 		}
 		
 		// size of all the vocab in the hashmap: 
