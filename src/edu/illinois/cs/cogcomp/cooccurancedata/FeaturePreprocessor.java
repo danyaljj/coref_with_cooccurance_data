@@ -17,17 +17,17 @@ import edu.illinois.cs.cogcomp.edison.sentences.TextAnnotation;
 //this reads all of the instances, and creates feature tables. 
 public class FeaturePreprocessor {
 	List<WinogradCorefInstance2> allInstances = null; 
-	Map<String, Integer> tokenMap = new HashMap<String, Integer> ();
+	public Map<String, Integer> tokenMap = new HashMap<String, Integer> ();
 	
 	// i-th key corresponds to the i-th sentence. The value corresponds to the token start and end index. 
-	static Map<Integer, Pair<Integer, Integer>> antVerbIndex = new HashMap<Integer, Pair<Integer, Integer>> (); 
-	static Map<Integer, Pair<Integer, Integer>> pronounVerbIndex = new HashMap<Integer, Pair<Integer, Integer>> (); 
+	public Map<Integer, Pair<Integer, Integer>> antVerbIndex = new HashMap<Integer, Pair<Integer, Integer>> (); 
+	public Map<Integer, Pair<Integer, Integer>> pronounVerbIndex = new HashMap<Integer, Pair<Integer, Integer>> (); 
 	
 	public FeaturePreprocessor(List<WinogradCorefInstance2> allInstances) { 
 		this.allInstances = allInstances; 
 	}
 
-	public static void readInstanceVerbs() { 		
+	public void readInstanceVerbs() { 		
 		String folder = "/shared/experiments/khashab2/workspace1/EventCooccurance/docs/extractedVerbs_withManualAnnotatation2/";
 		
 		// antecedents 
@@ -45,7 +45,7 @@ public class FeaturePreprocessor {
 				int tokenInd1 = -1; 
 				int tokenInd2 = -1;
 				for( int i = 0; i < tokenized.length; i++) { 
-					System.out.println(tokenized[i]);
+					//System.out.println(tokenized[i]);
 					if( tokenized[i].equals("****") ) { 
 						if( tokenInd1 == -1 )
 							tokenInd1 = i; 
@@ -56,22 +56,10 @@ public class FeaturePreprocessor {
 				if( tokenInd1 == -1 || tokenInd2 == -1 )
 					break; 
 				
-				antVerbIndex.put(lineIter, new Pair(tokenInd1, tokenInd2) );  
+				antVerbIndex.put(lineIter, new Pair(tokenInd1, tokenInd2-1) );  
 				//System.out.println("lineIter = " + lineIter);
 				//System.out.println("tokenInd1  = " + tokenInd1 + "  :  "  +  tokenized[tokenInd1]); 
 				//System.out.println("tokenInd2 = " + tokenInd2 + "  :  " + tokenized[tokenInd2]); 
-				/*
-				int ind2 = line.lastIndexOf(" **** "); 
-				int ind1 = line.indexOf(" **** ") + 6; 				
-				//System.out.println("Line = " + line);
-				//System.out.println("lineIter = " + lineIter);
-				//System.out.println("ind1 = " + ind1); 
-				//System.out.println("ind2 = " + ind2); 
-				if( ind1 == -1 || ind2 == -1 || ind1 == ind2)
-					break; 
-				String verb = line.substring(ind1, ind2); 
-				//System.out.println("Verb = " + verb); 
-				*/
 				lineIter++; 
 			}
 			fileReader.close();	
@@ -84,7 +72,7 @@ public class FeaturePreprocessor {
 		lineIter = 0; 
 		try {
 			//System.out.println("Reading the files done! "); 
-			FileReader fileReader = new FileReader(new File(folder + "ant1.txt"));
+			FileReader fileReader = new FileReader(new File(folder + "pro.txt"));
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
@@ -95,7 +83,7 @@ public class FeaturePreprocessor {
 				int tokenInd1 = -1; 
 				int tokenInd2 = -1;
 				for( int i = 0; i < tokenized.length; i++) { 
-					System.out.println(tokenized[i]);
+					//System.out.println(tokenized[i]);
 					if( tokenized[i].equals("****") ) { 
 						if( tokenInd1 == -1 )
 							tokenInd1 = i; 
@@ -106,22 +94,10 @@ public class FeaturePreprocessor {
 				if( tokenInd1 == -1 || tokenInd2 == -1 )
 					break; 
 				
-				pronounVerbIndex.put(lineIter, new Pair(tokenInd1, tokenInd2) );  
+				pronounVerbIndex.put(lineIter, new Pair(tokenInd1, tokenInd2-1) );  
 				//System.out.println("lineIter = " + lineIter);
 				//System.out.println("tokenInd1  = " + tokenInd1 + "  :  "  +  tokenized[tokenInd1]); 
 				//System.out.println("tokenInd2 = " + tokenInd2 + "  :  " + tokenized[tokenInd2]); 
-				/*
-				int ind2 = line.lastIndexOf(" **** "); 
-				int ind1 = line.indexOf(" **** ") + 6; 				
-				//System.out.println("Line = " + line);
-				//System.out.println("lineIter = " + lineIter);
-				//System.out.println("ind1 = " + ind1); 
-				//System.out.println("ind2 = " + ind2); 
-				if( ind1 == -1 || ind2 == -1 || ind1 == ind2)
-					break; 
-				String verb = line.substring(ind1, ind2); 
-				//System.out.println("Verb = " + verb); 
-				*/
 				lineIter++; 
 			}
 			fileReader.close();	
@@ -129,10 +105,13 @@ public class FeaturePreprocessor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
-	public void Process() { 
+	public void Process() {
+		// read verbs : 
+		//System.out.println("Reading the verbs from disk"); 
+		readInstanceVerbs(); 
+		
 		// add all the tokens to the hashmap 
 		for(WinogradCorefInstance2 ins : allInstances) { 
 			TextAnnotation ta = null; 
@@ -152,15 +131,11 @@ public class FeaturePreprocessor {
 		}	
 	}
 	
-	Pair<Integer,Integer> getVerbTokenIndexGivenInstanceIndex_antecedant(int instanceIndex) { 
-		return antVerbIndex.get(instanceIndex); 
-	}
-
-	Pair<Integer,Integer> getVerbTokenIndexGivenInstanceIndex_pronoun(int instanceIndex) { 
+	public Pair<Integer,Integer> getVerbTokenIndexGivenInstanceIndex_antecedant(int instanceIndex) { 
 		return antVerbIndex.get(instanceIndex); 
 	}
 	
-	public static void main(String[] args) { 
-		readInstanceVerbs(); 
-	}	
+	public Pair<Integer,Integer> getVerbTokenIndexGivenInstanceIndex_pronoun(int instanceIndex) { 
+		return pronounVerbIndex.get(instanceIndex); 
+	}
 }
