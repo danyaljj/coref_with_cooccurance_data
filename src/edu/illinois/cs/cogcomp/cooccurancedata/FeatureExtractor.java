@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.NarrativeSchemaInstance;
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.NarrativeSchemaRoles;
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance;
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance2;
+import edu.illinois.cs.cogcomp.core.datastructures.Pair;
 import edu.illinois.cs.cogcomp.edison.sentences.Constituent;
 import edu.illinois.cs.cogcomp.edison.sentences.EdisonSerializationHelper;
 import edu.illinois.cs.cogcomp.edison.sentences.Relation;
@@ -23,58 +26,209 @@ class MySpan {
 
 public class FeatureExtractor {
 	static public WinogradCorefInstance2 ins; 
-	
+	FeaturePreprocessor fp; 
+	int instance_num; 
+
+	// Daniel: I commented out the char offsets. They seem useless. 
+
 	public int antecend1_verb_start_word_offset; 
 	public int antecend1_verb_end_word_offset; 
-	public int antecend1_verb_start_char_offset; 
-	public int antecend1_verb_end_char_offset; 
+	//public int antecend1_verb_start_char_offset; 
+	//public int antecend1_verb_end_char_offset; 
 	public int antecend2_verb_start_word_offset; 
 	public int antecend2_verb_end_word_offset; 
-	public int antecend2_verb_start_char_offset; 
-	public int antecend2_verb_end_char_offset;
+	//public int antecend2_verb_start_char_offset; 
+	//public int antecend2_verb_end_char_offset;
 	public int pronoun_verb_start_word_offset; 
 	public int pronoun_verb_end_word_offset; 
-	public int pronoun_verb_start_char_offset; 
-	public int pronoun_verb_end_char_offset;
-	
-	public int antecend2_adjective_start_word_offset; 
-	public int antecend2_adjective_end_word_offset; 
-	public int antecend2_adjective_start_char_offset; 
-	public int antecend2_adjective_end_char_offset; 
-	
+	//public int pronoun_verb_start_char_offset; 
+	//public int pronoun_verb_end_char_offset;
+
+	//public int antecend2_adjective_start_word_offset; 
+	//public int antecend2_adjective_end_word_offset; 
+	//public int antecend2_adjective_start_char_offset; 
+	//public int antecend2_adjective_end_char_offset; 
+
 	public int connective_word_start_word_offset;
 	public int connective_word_end_word_offset;
-	
+
 	public int antecend1_head_start_word_offset;
 	public int antecend1_head_end_word_offset;
 	public int antecend2_head_start_word_offset;
 	public int antecend2_head_end_word_offset;
 	public int pronoun_head_start_word_offset;
 	public int pronoun_head_end_word_offset;
-	
+
 	public double generalScore=0;
 	public double verbScore1=0;
 	public double verbScore2=0;
 	public double roleScoreMin=0;
 	public double roleScoreMax=0;
 	public double roleScoreAvg=0;
-	
+
 	public ArrayList<NarrativeSchemaInstance> schemas;
 
 	private ArrayList<String> connectives = new ArrayList<String>();
-	
+
 	public FeatureExtractor() { 
 		connectiveSetup();
+
+		// initialize all of the gloabl variables in the class 
+		this.ins = null; 
+		this.fp = null;
+		this.instance_num = -1; 
+
+		antecend1_verb_start_word_offset = -1; 
+		antecend1_verb_end_word_offset = -1; 
+		antecend2_verb_start_word_offset = -1; 
+		antecend2_verb_end_word_offset = -1; 
+		pronoun_verb_start_word_offset = -1; 
+		pronoun_verb_end_word_offset = -1; 
+
+		connective_word_start_word_offset = -1;
+		connective_word_end_word_offset = -1;
+
+		antecend1_head_start_word_offset = -1;
+		antecend1_head_end_word_offset = -1;
+		antecend2_head_start_word_offset = -1;
+		antecend2_head_end_word_offset = -1;
+		pronoun_head_start_word_offset = -1;
+		pronoun_head_end_word_offset = -1;
 	}
-	
+
 	public void setInstance( WinogradCorefInstance2 ins ) { 
 		this.ins = ins;
 	}
-	
+
+	public void setInstanceNumber( int instance_num ) { 
+		this.instance_num = instance_num;
+	}
+
+	public void setPreprocessor( FeaturePreprocessor fp ) { 
+		this.fp = fp;
+	}
+
 	public void setNarrativeSchema(ArrayList<NarrativeSchemaInstance> schemas) { 
 		this.schemas = schemas;
 	}
+
+	public void setTheVerbIndices() { 
+		
+		Pair<Integer, Integer> ant_verb_index = fp.getVerbTokenIndexGivenInstanceIndex_antecedant(instance_num);
+		Pair<Integer, Integer> pro_verb_index = fp.getVerbTokenIndexGivenInstanceIndex_pronoun(instance_num);		
+		
+		antecend1_verb_start_word_offset = ant_verb_index.getFirst(); 
+		antecend1_verb_end_word_offset = ant_verb_index.getSecond();
+		antecend2_verb_start_word_offset = ant_verb_index.getFirst(); 
+		antecend2_verb_end_word_offset = ant_verb_index.getSecond();
+		pronoun_verb_start_word_offset = pro_verb_index.getFirst();
+		pronoun_verb_end_word_offset = pro_verb_index.getSecond();
+	}
 	
+	// the final extraction algorithm here s
+	public int[] Extract() throws Exception { 
+		if(ins == null || fp == null || this.instance_num == -1 /*|| ta == null */ )
+			throw new Exception(); 
+		if( antecend1_verb_start_word_offset == -1 
+				|| antecend1_verb_end_word_offset == -1  
+				|| antecend2_verb_start_word_offset == -1  
+				|| antecend2_verb_end_word_offset == -1  )
+			throw new Exception(); 
+
+		if( pronoun_verb_start_word_offset == -1 
+				|| pronoun_verb_end_word_offset == -1 )
+			throw new Exception(); 
+
+		if( pronoun_head_start_word_offset == -1
+				|| pronoun_head_end_word_offset == -1 )
+			throw new Exception(); 
+
+		if( antecend1_head_start_word_offset == -1 
+				|| antecend1_head_end_word_offset == -1 
+				|| antecend2_head_start_word_offset == -1 
+				|| antecend2_head_end_word_offset == -1 )
+			throw new Exception(); 
+
+		
+		TextAnnotation ta = null; 
+		try {
+			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		String[] toks = ta.getTokens(); 
+		int[] featuresAll = new int[0]; 
+
+		// antecedent-independent features 
+		// unigram features 
+		int[] unigram_features = new int[toks.length]; 
+		for( int i = 0; i < toks.length; i++) { 
+			// exclude the connective 
+			if( i >= connective_word_start_word_offset && i < connective_word_end_word_offset )
+				continue; 
+			unigram_features[ fp.tokenMap.get( toks[i] ) ] = 1; 
+		}
+		featuresAll = ArrayUtils.addAll(featuresAll, unigram_features);
+
+		// bigram features 
+		int[] bigram_features = new int[toks.length * toks.length]; 
+		for( int i = 0; i < connective_word_start_word_offset; i++) { 
+			for( int j = connective_word_end_word_offset; j < toks.length; j++) { 
+				bigram_features[ fp.tokenMap.get( toks[i] ) + toks.length * fp.tokenMap.get( toks[j] ) ] = 1; 
+			}
+		}
+		featuresAll = ArrayUtils.addAll(featuresAll, bigram_features);
+
+		int connective_ind =  fp.tokenMap.get( toks[ connective_word_start_word_offset ] ); 
+
+		// trigram 
+		int[] trigram_features = new int[toks.length * toks.length * toks.length]; 
+		for( int i = 0; i < connective_word_start_word_offset; i++) { 
+			for( int j = connective_word_end_word_offset; j < toks.length; j++) { 	 
+				trigram_features[ fp.tokenMap.get( toks[i] ) + toks.length * fp.tokenMap.get( toks[j] ) + toks.length * toks.length * connective_ind ] = 1; 
+			}
+		}
+		featuresAll = ArrayUtils.addAll(featuresAll, trigram_features);
+
+		// antecedent features 
+		int[] bigram_features_dependent = new int[toks.length * toks.length];
+
+		int head_noun_a1 = fp.tokenMap.get( toks[antecend1_head_start_word_offset] ); 
+		int head_noun_a2 = fp.tokenMap.get( toks[antecend2_head_start_word_offset] ); 
+		int head_noun_p = fp.tokenMap.get( toks[pronoun_head_start_word_offset] ); 
+
+		int head_verb_a1 = fp.tokenMap.get( toks[antecend1_verb_start_word_offset] ); 
+		int head_verb_a2 = fp.tokenMap.get( toks[antecend2_verb_start_word_offset] ); 
+		int head_verb_p = fp.tokenMap.get( toks[pronoun_verb_start_word_offset] ); 
+
+		int connective = fp.tokenMap.get( toks[connective_word_start_word_offset] ); 
+
+		//		H(A1)-V(A1)
+		//		H(A1)-V(P)
+		//		H(A1)-V(A2)
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_a1] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;		
+
+		//		H(A2)-V(A1)
+		//		H(A2)-V(P)
+		//		H(A2)-V(A2)
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_a1] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;		
+
+		//		V(A1)-V(A2)
+		//		V(A1)-V(P)
+		//		V(A2)-V(P)
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;		
+
+		return featuresAll; 
+	}
+
 	public void extractConnective() {
 		// Just Hack
 		// check for token ? all the pronoun_char_offset
@@ -88,7 +242,7 @@ public class FeatureExtractor {
 		}
 
 		boolean flag = false;
-		
+
 		// check in the middle
 		for (int i=ins.antecedent2_token_end;i<ins.pronoun_word_start;i++) {
 			String str=ta.getToken(i).toLowerCase();
@@ -109,7 +263,7 @@ public class FeatureExtractor {
 			}
 		}
 		if (flag) return;
-		
+
 		// check the beginning
 		for (int i=0;i<ins.antecedent1_token_start;i++) {
 			String str=ta.getToken(i).toLowerCase();
@@ -130,7 +284,7 @@ public class FeatureExtractor {
 			}
 		}
 		if (flag) return;
-		
+
 		// check the antecedent1 and pronoun
 		for (int i=ins.antecedent1_token_end;i<ins.pronoun_word_start;i++) {
 			String str=ta.getToken(i).toLowerCase();
@@ -150,7 +304,7 @@ public class FeatureExtractor {
 				}
 			}
 		}
-		
+
 		if (!flag) {
 			System.out.println(ins.sentence);
 			System.out.println(ins.antecedent2_token_end+" "+ins.pronoun_word_start);
@@ -158,7 +312,7 @@ public class FeatureExtractor {
 			System.exit(1);
 		}
 	}
-	
+
 	public void extractHeadNoun() {
 		MySpan span;
 		span=extractHead(ins.antecedent1_token_start,ins.antecedent1_token_end);
@@ -173,7 +327,7 @@ public class FeatureExtractor {
 		pronoun_head_start_word_offset=span.start;
 		pronoun_head_end_word_offset=span.end;
 	}
-	
+
 	public MySpan extractHead(int start, int end) {
 		TextAnnotation ta = null; 
 		try {
@@ -183,7 +337,7 @@ public class FeatureExtractor {
 			e.printStackTrace();
 		}
 		MySpan span=new MySpan();
-		
+
 		int index=-1;
 		for (int i=start;i<end;i++) {
 			if (ta.getToken(i).toLowerCase().equals("of")) {
@@ -200,7 +354,7 @@ public class FeatureExtractor {
 			span.start=index-1;
 			span.end=index;
 		}
-		
+
 		// if Capitalized, then check the token before, not "a, the, an"
 		if (ta.getToken(span.start).charAt(0)>='A'&&ta.getToken(span.start).charAt(0)<='Z') {
 			while (span.start>=1 && ta.getToken(span.start-1).charAt(0)>='A'&&ta.getToken(span.start-1).charAt(0)<='Z') {
@@ -209,7 +363,7 @@ public class FeatureExtractor {
 				span.start=span.start-1;
 			}
 		}
-		
+
 		return span;
 	}
 
@@ -219,12 +373,12 @@ public class FeatureExtractor {
 		for(String str : va) 
 			System.out.println( "str = " + str ); */ 
 	}
-	
+
 	public String getVerbGivenMention(String str) { 
-		
+
 		System.out.println("mention = " + str );
 		System.out.println("Sentence = " + ins.sentence );
-		
+
 		String verb = ""; 
 		TextAnnotation ta = null; 
 		try {
@@ -233,9 +387,9 @@ public class FeatureExtractor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		View srlvu = ta.getView("SRL"); 
-		
+
 		// find constituent  
 		List<Constituent> consts = srlvu.getConstituents(); 
 		for( Constituent conIns : consts )
@@ -250,21 +404,18 @@ public class FeatureExtractor {
 				}
 			}
 		}
-		
-		
+
+
 		// find relation
-		
+
 		return verb; 
 	}
-	
+
 	public void extractAdjectives() { 
 		// Daniel 
 	}
-	
-	public void Extract() { 
-		// the final extraction algorithm here 
-	}
-	
+
+
 	public void connectiveSetup() {
 		connectives.add("even though");
 		connectives.add("out of");
@@ -297,7 +448,7 @@ public class FeatureExtractor {
 		connectives.add("therefore");
 		connectives.add(":");
 	}
-	
+
 	private String getVerb(int start, int end) {
 		TextAnnotation ta = null; 
 		try {
@@ -306,15 +457,15 @@ public class FeatureExtractor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		String verb=ta.getToken(start);
 		for (int i=start+1;i<end;i++) {
 			verb=verb+" "+ta.getToken(i);
 		}
-		
+
 		return verb;
 	}
-	
+
 	private int checkVerb(String verb, String[] events) {
 		for (int i=0;i<events.length;i++) {
 			if (verb.equals(events[i])) {
@@ -323,7 +474,7 @@ public class FeatureExtractor {
 		}
 		return -1;
 	}
-	
+
 	private int checkVerb(String verb, Vector<String> events) {
 		for (int i=0;i<events.size();i++) {
 			if (verb.equals(events.get(i))) {
@@ -332,7 +483,7 @@ public class FeatureExtractor {
 		}
 		return -1;
 	}
-	
+
 	public void extractNarrativeSchema(int p) {
 		// p=1 => for antecedent1
 		// p=2 => for antecedent2
@@ -344,7 +495,7 @@ public class FeatureExtractor {
 			verb1=getVerb(antecend2_verb_start_word_offset,antecend2_verb_end_word_offset);
 		}
 		String verb2=getVerb(pronoun_verb_start_word_offset,pronoun_verb_end_word_offset);
-		
+
 		// Assume we have agr1, agr2
 		String role1="o";String role2="s";
 		for (int i=0;i<schemas.size();i++) {
