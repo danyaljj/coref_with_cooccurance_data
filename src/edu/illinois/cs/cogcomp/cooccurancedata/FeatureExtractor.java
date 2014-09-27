@@ -139,6 +139,10 @@ public class FeatureExtractor {
 				|| pronoun_verb_end_word_offset == -1 )
 			throw new Exception(); 
 
+		if( connective_word_start_word_offset == -1 
+				|| connective_word_end_word_offset == -1 )
+			throw new Exception(); 
+
 		if( pronoun_head_start_word_offset == -1
 				|| pronoun_head_end_word_offset == -1 )
 			throw new Exception(); 
@@ -149,7 +153,6 @@ public class FeatureExtractor {
 				|| antecend2_head_end_word_offset == -1 )
 			throw new Exception(); 
 
-		
 		TextAnnotation ta = null; 
 		try {
 			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
@@ -159,11 +162,56 @@ public class FeatureExtractor {
 		}
 
 		String[] toks = ta.getTokens(); 
+		if( connective_word_start_word_offset >  toks.length ) { 
+			System.out.println("inconsistent sizes"); 
+			System.out.println("connective_word_start_word_offset = " + connective_word_start_word_offset); 
+			System.out.println("toks.length = " + toks.length);
+			throw new Exception(); 
+		}
+
+		if( antecend1_verb_start_word_offset  >  toks.length ) { 
+			System.out.println("inconsistent sizes"); 
+			System.out.println("antecend1_verb_start_word_offset  = " + antecend1_verb_start_word_offset ); 
+			System.out.println("toks.length = " + toks.length);
+			throw new Exception(); 
+		}
+		if( antecend2_verb_start_word_offset  >  toks.length ) { 
+			System.out.println("inconsistent sizes"); 
+			System.out.println("antecend2_verb_start_word_offset  = " + antecend2_verb_start_word_offset ); 
+			System.out.println("toks.length = " + toks.length);
+			throw new Exception(); 
+		}
+		if( pronoun_verb_start_word_offset   >  toks.length ) { 
+			System.out.println("inconsistent sizes"); 
+			System.out.println("pronoun_verb_start_word_offset   = " + pronoun_verb_start_word_offset  ); 
+			System.out.println("toks.length = " + toks.length);
+			throw new Exception(); 
+		}
+		if( antecend1_head_start_word_offset   >  toks.length ) { 
+			System.out.println("inconsistent sizes"); 
+			System.out.println("antecend1_head_start_word_offset   = " + antecend1_head_start_word_offset  ); 
+			System.out.println("toks.length = " + toks.length);
+			throw new Exception(); 
+		}
+		if( antecend2_head_start_word_offset >  toks.length ) { 
+			System.out.println("inconsistent sizes"); 
+			System.out.println("antecend2_head_start_word_offset = " + antecend2_head_start_word_offset ); 
+			System.out.println("toks.length = " + toks.length);
+			throw new Exception(); 
+		}
+		
+		if( pronoun_head_start_word_offset >  toks.length ) { 
+			System.out.println("inconsistent sizes"); 
+			System.out.println("pronoun_head_start_word_offset  = " + pronoun_head_start_word_offset ); 
+			System.out.println("toks.length = " + toks.length);
+			throw new Exception(); 
+		}
+				
 		int[] featuresAll = new int[0]; 
 
 		// antecedent-independent features 
 		// unigram features 
-		int[] unigram_features = new int[toks.length]; 
+		int[] unigram_features = new int[fp.tokenMap.size()]; 
 		for( int i = 0; i < toks.length; i++) { 
 			// exclude the connective 
 			if( i >= connective_word_start_word_offset && i < connective_word_end_word_offset )
@@ -173,27 +221,28 @@ public class FeatureExtractor {
 		featuresAll = ArrayUtils.addAll(featuresAll, unigram_features);
 
 		// bigram features 
-		int[] bigram_features = new int[toks.length * toks.length]; 
+		int[] bigram_features = new int[fp.tokenMap.size() * fp.tokenMap.size()]; 
 		for( int i = 0; i < connective_word_start_word_offset; i++) { 
 			for( int j = connective_word_end_word_offset; j < toks.length; j++) { 
-				bigram_features[ fp.tokenMap.get( toks[i] ) + toks.length * fp.tokenMap.get( toks[j] ) ] = 1; 
+				bigram_features[ fp.tokenMap.get( toks[i] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[j] ) ] = 1; 
 			}
 		}
 		featuresAll = ArrayUtils.addAll(featuresAll, bigram_features);
 
+		System.out.println("connective_word_start_word_offset = " +  connective_word_start_word_offset); 
 		int connective_ind =  fp.tokenMap.get( toks[ connective_word_start_word_offset ] ); 
 
 		// trigram 
-		int[] trigram_features = new int[toks.length * toks.length * toks.length]; 
+		int[] trigram_features = new int[fp.tokenMap.size() * fp.tokenMap.size() * fp.tokenMap.size()]; 
 		for( int i = 0; i < connective_word_start_word_offset; i++) { 
 			for( int j = connective_word_end_word_offset; j < toks.length; j++) { 	 
-				trigram_features[ fp.tokenMap.get( toks[i] ) + toks.length * fp.tokenMap.get( toks[j] ) + toks.length * toks.length * connective_ind ] = 1; 
+				trigram_features[ fp.tokenMap.get( toks[i] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[j] ) + fp.tokenMap.size() * fp.tokenMap.size() * connective_ind ] = 1; 
 			}
 		}
 		featuresAll = ArrayUtils.addAll(featuresAll, trigram_features);
 
 		// antecedent features 
-		int[] bigram_features_dependent = new int[toks.length * toks.length];
+		int[] bigram_features_dependent = new int[fp.tokenMap.size() * fp.tokenMap.size()];
 
 		int head_noun_a1 = fp.tokenMap.get( toks[antecend1_head_start_word_offset] ); 
 		int head_noun_a2 = fp.tokenMap.get( toks[antecend2_head_start_word_offset] ); 
@@ -208,23 +257,23 @@ public class FeatureExtractor {
 		//		H(A1)-V(A1)
 		//		H(A1)-V(P)
 		//		H(A1)-V(A2)
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_a1] ) ] = 1;
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;		
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_a1] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a1] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;		
 
 		//		H(A2)-V(A1)
 		//		H(A2)-V(P)
 		//		H(A2)-V(A2)
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_a1] ) ] = 1;
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;		
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_a1] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_noun_a2] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;		
 
 		//		V(A1)-V(A2)
 		//		V(A1)-V(P)
 		//		V(A2)-V(P)
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a1] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
-		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a2] ) + toks.length * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;		
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a1] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_a2] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a1] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;
+		bigram_features_dependent[ fp.tokenMap.get( toks[head_verb_a2] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[head_verb_p] ) ] = 1;		
 
 		return featuresAll; 
 	}
