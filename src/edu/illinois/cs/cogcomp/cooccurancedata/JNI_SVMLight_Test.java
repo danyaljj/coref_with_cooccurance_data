@@ -45,8 +45,7 @@ public class JNI_SVMLight_Test {
       
 	  int train_num = 0;
 	  FeatureExtractor fe = new FeatureExtractor();
-	  fe.setPreprocessor(fp); 
-	  fe.setTheVerbIndices(); 
+	  fe.setPreprocessor( fp ); 
 	  for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
 		  if (ins.test_or_train==0) {
 		      traindata[train_num] = getFeatureVector(ins,fe,train_num);
@@ -82,7 +81,8 @@ public class JNI_SVMLight_Test {
 		  if (ins.test_or_train==1) {
 			  LabeledFeatureVector test_data=getFeatureVector(ins,fe,test_num);
 			  double a = model.classify(test_data);
-			  int b = ins.getLabel();
+			  fe.setInstance(ins); 
+			  int b = fe.getLabel();
 			  test_num++;
 		  }
       }
@@ -92,10 +92,11 @@ public class JNI_SVMLight_Test {
     //TODO Verb normalization for Narrative Schema
 	
 	public static LabeledFeatureVector getFeatureVector(WinogradCorefInstance2 ins, FeatureExtractor fe, int instance_num) throws Exception {
-	  fe.setInstance(ins); 
-	  fe.setInstanceNumber(instance_num); 
-	  fe.extractHeadNoun();
-	  fe.extractConnective(); 
+		fe.setInstance( ins ); 
+		fe.setInstanceNumber( instance_num ); 
+		fe.setTheVerbIndices(); 
+		fe.extractHeadNoun();  
+		fe.extractConnective(); 
 	  int[] featureVector = fe.Extract();
 	  
 	  int dim=0;
@@ -112,7 +113,7 @@ public class JNI_SVMLight_Test {
 			  p++;
 		  }
 	  }
-	  LabeledFeatureVector vec = new LabeledFeatureVector(ins.getLabel(),dims,values);
+	  LabeledFeatureVector vec = new LabeledFeatureVector(fe.getLabel(),dims,values);
       // Need to normalize?
 	  vec.normalizeL2();
 	  System.out.println(instance_num+" "+dim);

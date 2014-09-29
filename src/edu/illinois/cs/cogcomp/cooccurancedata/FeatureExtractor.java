@@ -601,4 +601,11 @@ public class FeatureExtractor {
 			}
 		}
 	}
+	
+	public int getLabel() {
+		if (ins.correct_antecedent.equals(ins.antecedent1)) return 1;
+		if (ins.correct_antecedent.equals(ins.antecedent2)) return -1;
+		System.out.println("Error: Instance Label can not decide");
+		return -1;
+	}
 }

@@ -39,12 +39,5 @@ public class WinogradCorefInstance2 implements Serializable {
 	
 	public byte[] textAnnotation_pronoun; 
 	public String textAnnotation_string_pronoun;
-	
-	public int getLabel() {
-		if (correct_antecedent.equals(antecedent1)) return 1;
-		if (correct_antecedent.equals(antecedent2)) return -1;
-		System.out.println("Error: Instance Label can not decide");
-		return -1;
-	}
 }
 
