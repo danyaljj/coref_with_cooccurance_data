@@ -29,25 +29,14 @@ public class FeatureExtractor {
 	FeaturePreprocessor fp; 
 	int instance_num; 
 
-	// Daniel: I commented out the char offsets. They seem useless. 
-
 	public int antecend1_verb_start_word_offset; 
 	public int antecend1_verb_end_word_offset; 
-	//public int antecend1_verb_start_char_offset; 
-	//public int antecend1_verb_end_char_offset; 
+	
 	public int antecend2_verb_start_word_offset; 
 	public int antecend2_verb_end_word_offset; 
-	//public int antecend2_verb_start_char_offset; 
-	//public int antecend2_verb_end_char_offset;
+	
 	public int pronoun_verb_start_word_offset; 
 	public int pronoun_verb_end_word_offset; 
-	//public int pronoun_verb_start_char_offset; 
-	//public int pronoun_verb_end_char_offset;
-
-	//public int antecend2_adjective_start_word_offset; 
-	//public int antecend2_adjective_end_word_offset; 
-	//public int antecend2_adjective_start_char_offset; 
-	//public int antecend2_adjective_end_char_offset; 
 
 	public int connective_word_start_word_offset;
 	public int connective_word_end_word_offset;
@@ -59,12 +48,19 @@ public class FeatureExtractor {
 	public int pronoun_head_start_word_offset;
 	public int pronoun_head_end_word_offset;
 
-	public double generalScore=0;
-	public double verbScore1=0;
-	public double verbScore2=0;
-	public double roleScoreMin=0;
-	public double roleScoreMax=0;
-	public double roleScoreAvg=0;
+	public double antecend1_generalScore=0;
+	public double antecend1_verbScore1=0;
+	public double antecend1_verbScore2=0;
+	public double antecend1_roleScoreMin=0;
+	public double antecend1_roleScoreMax=0;
+	public double antecend1_roleScoreAvg=0;
+	
+	public double antecend2_generalScore=0;
+	public double antecend2_verbScore1=0;
+	public double antecend2_verbScore2=0;
+	public double antecend2_roleScoreMin=0;
+	public double antecend2_roleScoreMax=0;
+	public double antecend2_roleScoreAvg=0;
 
 	public ArrayList<NarrativeSchemaInstance> schemas;
 
@@ -131,7 +127,7 @@ public class FeatureExtractor {
 	}
 	
 	// the final extraction algorithm here s
-	public int[] Extract() throws Exception { 
+	public double[] Extract() throws Exception { 
 		if(ins == null || fp == null || this.instance_num == -1 /*|| ta == null */ )
 			throw new Exception(); 
 		if( antecend1_verb_start_word_offset == -1 
@@ -218,21 +214,21 @@ public class FeatureExtractor {
 				throw new Exception(); 
 		}
 
-		int[] featuresAll = new int[0]; 
+		double[] featuresAll = new double[0]; 
 
 		// antecedent-independent features 
 		// unigram features 
-		int[] unigram_features = new int[fp.tokenMap.size()]; 
+		double[] unigram_features = new double[fp.tokenMap.size()]; 
 		for( int i = 0; i < toks.length; i++) { 
 			// exclude the connective 
-			if( i == connective_word_start_word_offset /*&& i < connective_word_end_word_offset*/ )
+			if( i == connective_word_start_word_offset  ) //&& i < connective_word_end_word_offset
 				continue; 
 			unigram_features[ fp.tokenMap.get( toks[i] ) ] = 1; 
 		}
 		featuresAll = ArrayUtils.addAll(featuresAll, unigram_features);
 
 		// bigram features 
-		int[] bigram_features = new int[fp.tokenMap.size() * fp.tokenMap.size()]; 
+		double[] bigram_features = new double[fp.tokenMap.size() * fp.tokenMap.size()]; 
 		for( int i = 0; i < connective_word_start_word_offset; i++) { 
 			for( int j = connective_word_start_word_offset+1; j < toks.length; j++) { 
 				bigram_features[ fp.tokenMap.get( toks[i] ) + fp.tokenMap.size() * fp.tokenMap.get( toks[j] ) ] = 1; 
@@ -253,7 +249,7 @@ public class FeatureExtractor {
 //		featuresAll = ArrayUtils.addAll(featuresAll, trigram_features);
 
 		// antecedent features 
-		int[] bigram_features_dependent = new int[fp.tokenMap.size() * fp.tokenMap.size()];
+		double[] bigram_features_dependent = new double[fp.tokenMap.size() * fp.tokenMap.size()];
 
 		int head_noun_a1 = fp.tokenMap.get( toks[antecend1_head_start_word_offset] ); 
 		int head_noun_a2 = fp.tokenMap.get( toks[antecend2_head_start_word_offset] ); 
@@ -295,6 +291,24 @@ public class FeatureExtractor {
 		bigram_features_dependent[ head_verb_a1 + fp.tokenMap.size() * head_verb_p ] = 1;
 		bigram_features_dependent[ head_verb_a2 + fp.tokenMap.size() * head_verb_p ] = 1;		
 
+		featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent);
+		
+		double[] narrative_schema_features=new double[12];
+		narrative_schema_features[0]=antecend1_generalScore;
+		narrative_schema_features[1]=antecend1_verbScore1;
+		narrative_schema_features[2]=antecend1_verbScore2;
+		narrative_schema_features[3]=antecend1_roleScoreMin;
+		narrative_schema_features[4]=antecend1_roleScoreMax;
+		narrative_schema_features[5]=antecend1_roleScoreAvg;
+		narrative_schema_features[6]=antecend2_generalScore;
+		narrative_schema_features[7]=antecend2_verbScore1;
+		narrative_schema_features[8]=antecend2_verbScore2;
+		narrative_schema_features[9]=antecend2_roleScoreMin;
+		narrative_schema_features[10]=antecend2_roleScoreMax;
+		narrative_schema_features[11]=antecend2_roleScoreAvg;
+		
+		featuresAll = ArrayUtils.addAll(featuresAll, narrative_schema_features);
+		
 		return featuresAll; 
 	}
 
@@ -572,6 +586,11 @@ public class FeatureExtractor {
 	public void extractNarrativeSchema(int p) {
 		// p=1 => for antecedent1
 		// p=2 => for antecedent2
+		
+		if (instance_num==1056) return;
+		//System.out.println(instance_num+"\t"+ins.sentence);
+		//System.out.println(pronoun_verb_start_word_offset+" "+pronoun_verb_end_word_offset);
+		
 		String verb1="";
 		if (p==1) {
 			verb1=getVerb(antecend1_verb_start_word_offset,antecend1_verb_end_word_offset);
@@ -581,43 +600,114 @@ public class FeatureExtractor {
 		}
 		String verb2=getVerb(pronoun_verb_start_word_offset,pronoun_verb_end_word_offset);
 
-		// Assume we have agr1, agr2
-		String role1="o";String role2="s";
+		TextAnnotation ta = null; 
+		try {
+			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		View srlvu = ta.getView("SRL"); 
+
+		int start=0, end=0;
+		if (p==1) {
+			start=ins.antecedent1_token_start;
+			end=ins.antecedent1_token_end;
+		}
+		else {
+			start=ins.antecedent2_token_start;
+			end=ins.antecedent2_token_end;
+		}
+		String role1=getRoleFromSRL(srlvu,verb1,start,end);
+		String role2=getRoleFromSRL(srlvu,verb2,ins.pronoun_word_start,ins.pronoun_word_end);
+		
+		double generalScore=0, verbScore1=0, verbScore2=0, roleScoreMin=0, roleScoreMax=0, roleScoreAvg=0;
+		
 		for (int i=0;i<schemas.size();i++) {
 			NarrativeSchemaInstance schema=schemas.get(i);
 			int a=checkVerb(verb1,schema.events);
 			int b=checkVerb(verb2,schema.events);
 			if (a!=-1 && b!=-1) {
+				System.out.println("hit");
 				generalScore=schema.generalScore;
 				verbScore1=schema.eventScores[a];
 				verbScore2=schema.eventScores[b];
-				for (int j=0;j<schema.roleVecs.size();j++) {
-					NarrativeSchemaRoles roles=schema.roleVecs.get(j);
-					int x=checkVerb(verb1,roles.roles);
-					int y=checkVerb(verb2,roles.roles);
-					if (x!=-1 && y!=-1 && roles.roleTypes.get(x).equals(role1) && roles.roleTypes.get(y).equals(role2)) {
-						if (roles.headSize==0) break;
-						roleScoreMin=roles.headScores.get(0);
-						roleScoreMax=roles.headScores.get(0);
-						roleScoreAvg=roles.headScores.get(0);
-						for (int t=1;t<roles.headSize;t++) {
-							if (roleScoreMin>roles.headScores.get(t)) {
-								roleScoreMin=roles.headScores.get(t);
+				if (!role1.equals("") && !role2.equals("")) {
+					for (int j=0;j<schema.roleVecs.size();j++) {
+						NarrativeSchemaRoles roles=schema.roleVecs.get(j);
+						int x=checkVerb(verb1,roles.roles);
+						int y=checkVerb(verb2,roles.roles);
+						if (x!=-1 && y!=-1 && roles.roleTypes.get(x).equals(role1) && roles.roleTypes.get(y).equals(role2)) {
+							if (roles.headSize==0) break;
+							roleScoreMin=roles.headScores.get(0);
+							roleScoreMax=roles.headScores.get(0);
+							roleScoreAvg=roles.headScores.get(0);
+							for (int t=1;t<roles.headSize;t++) {
+								if (roleScoreMin>roles.headScores.get(t)) {
+									roleScoreMin=roles.headScores.get(t);
+								}
+								if (roleScoreMax<roles.headScores.get(t)) {
+									roleScoreMax=roles.headScores.get(t);
+								}
+								roleScoreAvg+=roles.headScores.get(t);
 							}
-							if (roleScoreMax<roles.headScores.get(t)) {
-								roleScoreMax=roles.headScores.get(t);
-							}
-							roleScoreAvg+=roles.headScores.get(t);
+							roleScoreAvg=roleScoreAvg/roles.headSize;
+							break;
 						}
-						roleScoreAvg=roleScoreAvg/roles.headSize;
-						break;
 					}
 				}
 				break;
 			}
 		}
+		
+		if (p==1) {
+			antecend1_generalScore=generalScore;
+			antecend1_verbScore1=verbScore1;
+			antecend1_verbScore2=verbScore2;
+			antecend1_roleScoreMin=roleScoreMin;
+			antecend1_roleScoreMax=roleScoreMax;
+			antecend1_roleScoreAvg=roleScoreAvg;
+		}
+		else {
+			antecend2_generalScore=generalScore;
+			antecend2_verbScore1=verbScore1;
+			antecend2_verbScore2=verbScore2;
+			antecend2_roleScoreMin=roleScoreMin;
+			antecend2_roleScoreMax=roleScoreMax;
+			antecend2_roleScoreAvg=roleScoreAvg;
+		}
 	}
 	
+	private String getRoleFromSRL(View srlvu, String verb1, int start, int end) {
+		String role="";
+		List<Constituent> consts = srlvu.getConstituents();
+		for (Constituent conIns : consts ) { 
+			if (conIns.getSurfaceString().equals(verb1)) { 
+				List<Relation> incomRel = conIns.getIncomingRelations();
+				for( Relation rel : incomRel) {
+					if (rel.getRelationName().equals("A0")) {
+						Constituent c=rel.getTarget();
+						// Gold mention covers SRL mention
+						if (start<=c.getStartSpan() && end>=c.getEndSpan()) {
+							role="s";
+							break;
+						}
+					}
+					if (rel.getRelationName().equals("A1")) {
+						Constituent c=rel.getTarget();
+						// Gold mention covers SRL mention
+						if (start<=c.getStartSpan() && end>=c.getEndSpan()) {
+							role="o";
+							break;
+						}
+					}
+				}
+			}
+		}
+		return role;
+	}
+
 	public int getLabel() {
 		if (ins.correct_antecedent.equals(ins.antecedent1)) return 1;
 		if (ins.correct_antecedent.equals(ins.antecedent2)) return -1;

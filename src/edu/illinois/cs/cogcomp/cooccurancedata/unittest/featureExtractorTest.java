@@ -36,7 +36,7 @@ public class featureExtractorTest {
 			fe.setTheVerbIndices(); 
 			fe.extractHeadNoun();  
 			fe.extractConnective(); 
-			int[] featureVector = new int[0]; 
+			double[] featureVector = new double[0]; 
 			try {
 				featureVector = fe.Extract();
 			} catch (Exception e) {

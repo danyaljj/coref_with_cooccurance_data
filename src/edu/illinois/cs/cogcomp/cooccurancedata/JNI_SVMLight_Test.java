@@ -1,11 +1,14 @@
 package edu.illinois.cs.cogcomp.cooccurancedata;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
+import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.NarrativeSchemaInstance;
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance2;
+import edu.illinois.cs.cogcomp.cooccurancedata.readers.NarrativeSchemaReader;
 import edu.illinois.cs.cogcomp.cooccurancedata.readers.PronounDisambiguationDataReader;
 
 import jnisvmlight.LabeledFeatureVector;
@@ -17,11 +20,14 @@ public class JNI_SVMLight_Test {
  
 	public static int N = 0;
 
-	public static int M = 18468506;
+	public static int M = 36932727; //18468506
 
 	public static void main(String[] args) throws Exception {
 	  PronounDisambiguationDataReader pr = new PronounDisambiguationDataReader(); 
 	  pr.deserializeData2();
+	  
+	  NarrativeSchemaReader nsreader=new NarrativeSchemaReader();
+	  ArrayList<NarrativeSchemaInstance> allInstances = nsreader.readSchema(6); // 6,8,10,12
 	  // feature pre-processor 
 	  FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations );
 	  fp.Process(); 
@@ -45,7 +51,8 @@ public class JNI_SVMLight_Test {
       
 	  int train_num = 0;
 	  FeatureExtractor fe = new FeatureExtractor();
-	  fe.setPreprocessor( fp );
+	  fe.setPreprocessor(fp);
+	  fe.setNarrativeSchema(allInstances);
 	  int p=0;
 	  for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
 		  if (ins.test_or_train==1) {
@@ -104,8 +111,10 @@ public class JNI_SVMLight_Test {
 	  fe.setInstanceNumber(instance_num); 
 	  fe.setTheVerbIndices(); 
 	  fe.extractHeadNoun();  
-	  fe.extractConnective(); 
-	  int[] featureVector = fe.Extract();
+	  fe.extractConnective();
+	  fe.extractNarrativeSchema(1);
+	  fe.extractNarrativeSchema(2);
+	  double[] featureVector = fe.Extract();
 	  
 	  //System.out.println(featureVector.length);
 	  
