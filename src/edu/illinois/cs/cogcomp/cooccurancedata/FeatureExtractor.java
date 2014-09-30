@@ -114,13 +114,13 @@ public class FeatureExtractor {
 
 	public void setTheVerbIndices() { 
 		
-		System.out.println("----> Setting the verb indices for the instance = " + instance_num);
+		//System.out.println("----> Setting the verb indices for the instance = " + instance_num);
 		
 		Pair<Integer, Integer> ant_verb_index = fp.getVerbTokenIndexGivenInstanceIndex_antecedant(instance_num);
 		Pair<Integer, Integer> pro_verb_index = fp.getVerbTokenIndexGivenInstanceIndex_pronoun(instance_num);		
 		
-		System.out.println("----> ant_verb_index = " + ant_verb_index);
-		System.out.println("----> pro_verb_index = " + pro_verb_index);
+		//System.out.println("----> ant_verb_index = " + ant_verb_index);
+		//System.out.println("----> pro_verb_index = " + pro_verb_index);
 		
 		antecend1_verb_start_word_offset = ant_verb_index.getFirst(); 
 		antecend1_verb_end_word_offset = ant_verb_index.getSecond();
@@ -240,7 +240,7 @@ public class FeatureExtractor {
 		}
 		featuresAll = ArrayUtils.addAll(featuresAll, bigram_features);
 
-		System.out.println("connective_word_start_word_offset = " +  connective_word_start_word_offset); 
+		//System.out.println("connective_word_start_word_offset = " +  connective_word_start_word_offset); 
 		int connective_ind =  fp.tokenMap.get( toks[ connective_word_start_word_offset ] ); 
 
 		// trigram 
@@ -265,14 +265,14 @@ public class FeatureExtractor {
 
 		int connective = fp.tokenMap.get( toks[connective_word_start_word_offset] ); 
 		
-		System.out.println("head_noun_a1 = " + head_noun_a1); 
-		System.out.println("head_noun_a2 = " + head_noun_a2); 
-		System.out.println("head_noun_p = " + head_noun_p); 
-		System.out.println("head_verb_a1 = "+ head_verb_a1); 
-		System.out.println("head_verb_a2 = "+ head_verb_a2); 
-		System.out.println("head_verb_p = " + head_verb_p);
-		System.out.println("connective = " + connective); 
-		System.out.println("Size of the tokens = " + toks.length); 
+		//System.out.println("head_noun_a1 = " + head_noun_a1); 
+		//System.out.println("head_noun_a2 = " + head_noun_a2); 
+		//System.out.println("head_noun_p = " + head_noun_p); 
+		//System.out.println("head_verb_a1 = "+ head_verb_a1); 
+		//System.out.println("head_verb_a2 = "+ head_verb_a2); 
+		//System.out.println("head_verb_p = " + head_verb_p);
+		//System.out.println("connective = " + connective); 
+		//System.out.println("Size of the tokens = " + toks.length); 
 				
 		//		H(A1)-V(A1)
 		//		H(A1)-V(P)
@@ -382,19 +382,35 @@ public class FeatureExtractor {
 		}
 	}
 
+	public void outputHead(int start, int end) {
+		TextAnnotation ta = null; 
+		try {
+			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (int i=start;i<end;i++)
+			System.out.print(ta.getToken(i)+" ");
+		System.out.println();
+	}
+	
 	public void extractHeadNoun() {
 		MySpan span;
 		span=extractHead(ins.antecedent1_token_start,ins.antecedent1_token_end);
 		antecend1_head_start_word_offset=span.start;
 		antecend1_head_end_word_offset=span.end;
+		//outputHead(span.start,span.end);
 
 		span=extractHead(ins.antecedent2_token_start,ins.antecedent2_token_end);
 		antecend2_head_start_word_offset=span.start;
 		antecend2_head_end_word_offset=span.end;
+		//outputHead(span.start,span.end);
 
 		span=extractHead(ins.pronoun_word_start,ins.pronoun_word_end);
 		pronoun_head_start_word_offset=span.start;
 		pronoun_head_end_word_offset=span.end;
+		//outputHead(span.start,span.end);
 	}
 
 	public MySpan extractHead(int start, int end) {
@@ -605,7 +621,7 @@ public class FeatureExtractor {
 	public int getLabel() {
 		if (ins.correct_antecedent.equals(ins.antecedent1)) return 1;
 		if (ins.correct_antecedent.equals(ins.antecedent2)) return -1;
-		System.out.println("Error: Instance Label can not decide");
+		System.out.println("Error: Instance Label can not decide\t"+ins.antecedent1+"\t"+ins.antecedent2+"\t"+ins.correct_antecedent);
 		return -1;
 	}
 }

@@ -19,10 +19,7 @@ public class ConnectiveExtractionTest {
 			fe.setInstance( ins ); 
 			fe.setInstanceNumber( instance_num ); 
 			fe.extractHeadNoun(); 
-			fe.extractConnective(); 
-
-			System.out.println( "connective_word_end_word_offset = " + fe.connective_word_end_word_offset ); 
-			System.out.println( "connective_word_start_word_offset = " + fe.connective_word_start_word_offset ); // Daniel; in the current version this is always -1 
+			// fe.extractConnective(); 
 			
 			instance_num++; 
 		}

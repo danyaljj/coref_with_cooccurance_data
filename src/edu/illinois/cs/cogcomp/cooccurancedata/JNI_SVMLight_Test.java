@@ -17,7 +17,7 @@ public class JNI_SVMLight_Test {
  
 	public static int N = 0;
 
-	public static int M = 0;
+	public static int M = 18468506;
 
 	public static void main(String[] args) throws Exception {
 	  PronounDisambiguationDataReader pr = new PronounDisambiguationDataReader(); 
@@ -33,7 +33,7 @@ public class JNI_SVMLight_Test {
 	  assert(pr.allInstances_withAntecedentAnnotations.size() == fp.pronounVerbIndex.size()); 
 	  
 	  for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
-		  if (ins.test_or_train==0) N++;
+		  if (ins.test_or_train==1) N++;
 	  }
 	  
 	  SVMLightInterface trainer = new SVMLightInterface();
@@ -45,18 +45,21 @@ public class JNI_SVMLight_Test {
       
 	  int train_num = 0;
 	  FeatureExtractor fe = new FeatureExtractor();
-	  fe.setPreprocessor( fp ); 
+	  fe.setPreprocessor( fp );
+	  int p=0;
 	  for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
-		  if (ins.test_or_train==0) {
-		      traindata[train_num] = getFeatureVector(ins,fe,train_num);
-		      train_num++;
+		  if (ins.test_or_train==1) {
+		      traindata[p] = getFeatureVector(ins,fe,train_num);
+		      p++;
 		  }
+		  train_num++;
 	  }
 
 	  // Initialize a new TrainingParamteres object with the default SVM-light values
 	  TrainingParameters tp = new TrainingParameters();
 	  // Switch on some debugging output
 	  tp.getLearningParameters().verbosity = 1;
+	  // tp.getLearningParameters().RANKING = 1;
 	  
 	  System.out.println("\nTRAINING SVM-light MODEL ..");
 	  SVMLightModel model = trainer.trainModel(traindata, tp);
@@ -77,46 +80,57 @@ public class JNI_SVMLight_Test {
 	  
       precision = 0;
       int test_num=0;
+      p=0;
       for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
-		  if (ins.test_or_train==1) {
+		  if (ins.test_or_train==0) {
 			  LabeledFeatureVector test_data=getFeatureVector(ins,fe,test_num);
 			  double a = model.classify(test_data);
 			  fe.setInstance(ins); 
 			  int b = fe.getLabel();
-			  test_num++;
+			  if ((a < 0 && b < 0) || (a > 0 && b > 0)) {
+				  precision++;
+			  }
+			  p++;
 		  }
+		  test_num++;
       }
-      System.out.println("\n" + ((double) precision / test_num) + " PRECISION on training data");
+      System.out.println("\n" + ((double) precision / p) + " PRECISION on testing data");
 	}
 
     //TODO Verb normalization for Narrative Schema
 	
 	public static LabeledFeatureVector getFeatureVector(WinogradCorefInstance2 ins, FeatureExtractor fe, int instance_num) throws Exception {
-		fe.setInstance( ins ); 
-		fe.setInstanceNumber( instance_num ); 
-		fe.setTheVerbIndices(); 
-		fe.extractHeadNoun();  
-		fe.extractConnective(); 
+	  fe.setInstance(ins); 
+	  fe.setInstanceNumber(instance_num); 
+	  fe.setTheVerbIndices(); 
+	  fe.extractHeadNoun();  
+	  fe.extractConnective(); 
 	  int[] featureVector = fe.Extract();
+	  
+	  //System.out.println(featureVector.length);
 	  
 	  int dim=0;
 	  for (int i=0;i<featureVector.length;i++) {
 		  if (featureVector[i]!=0) dim++;
 	  }
-      int[] dims = new int[dim];
-      double[] values = new double[dim];
+      int[] dims = new int[dim+1];
+      double[] values = new double[dim+1];
       int p=0;
 	  for (int i=0;i<featureVector.length;i++) {
 		  if (featureVector[i]!=0) {
-			  dims[p]=i;
+			  dims[p]=i+1;
 			  values[p]=featureVector[i];
 			  p++;
 		  }
 	  }
+	  
+	  // Set for dimension change when test
+	  dims[dim]=M;values[dim]=1.0;
+	  
 	  LabeledFeatureVector vec = new LabeledFeatureVector(fe.getLabel(),dims,values);
       // Need to normalize?
 	  vec.normalizeL2();
-	  System.out.println(instance_num+" "+dim);
+	  //System.out.println(instance_num+" "+dim);
       return vec;
 	}
 }

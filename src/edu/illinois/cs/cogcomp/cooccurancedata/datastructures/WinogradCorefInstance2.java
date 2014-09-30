@@ -9,7 +9,7 @@ public class WinogradCorefInstance2 implements Serializable {
 	public String antecedent1; 
 	public String antecedent2; 
 	public String correct_antecedent; 
-	public int test_or_train; // 1: test   0: train 
+	public int test_or_train; // 0: test   1: train 
 	
 	// to be filled in, after preprocessing 
 	public int pronoun_char_start; 
