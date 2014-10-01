@@ -13,7 +13,7 @@ public class featureExtractorTest {
 		pr.deserializeData2();
 		
 		// feature pre-processor 
-		FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations );
+		FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, false, true);
 		fp.Process(); 
 
 		// the size of the verbs must match the number of the instances 
