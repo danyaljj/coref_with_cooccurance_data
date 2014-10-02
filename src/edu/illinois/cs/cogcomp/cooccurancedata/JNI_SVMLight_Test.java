@@ -1,5 +1,7 @@
 package edu.illinois.cs.cogcomp.cooccurancedata;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -8,6 +10,7 @@ import java.util.Random;
 
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.NarrativeSchemaInstance;
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance2;
+import edu.illinois.cs.cogcomp.cooccurancedata.readers.IOManager;
 import edu.illinois.cs.cogcomp.cooccurancedata.readers.NarrativeSchemaReader;
 import edu.illinois.cs.cogcomp.cooccurancedata.readers.PronounDisambiguationDataReader;
 
@@ -85,6 +88,8 @@ public class JNI_SVMLight_Test {
 	  }
 	  System.out.println("\n" + ((double) precision / N) + " PRECISION on training data");
 	  
+	  // BufferedWriter bw=IOManager.openWriter("output.txt");
+	  
       precision = 0;
       int test_num=0;
       p=0;
@@ -94,14 +99,40 @@ public class JNI_SVMLight_Test {
 			  double a = model.classify(test_data);
 			  fe.setInstance(ins); 
 			  int b = fe.getLabel();
+			  
+			  String men="";
+			  String pred="";
+			  if (a>0) {
+				  pred=ins.antecedent1;
+			  }
+			  else {
+				  pred=ins.antecedent2;
+			  }
+			  if (b>0) {
+				  men=ins.antecedent1;
+			  }
+			  else {
+				  men=ins.antecedent2;
+			  }
+		
 			  if ((a < 0 && b < 0) || (a > 0 && b > 0)) {
 				  precision++;
+				  // bw.write("Right: "+ins.sentence+"\t"+men+"\t"+pred+"\t"+"\n");
 			  }
+			  else {
+				  // bw.write("Wrong: "+ins.sentence+"\t"+men+"\t"+pred+"\t"+"\n");
+			  }
+			  
 			  p++;
+			  if (p%2==0) {
+				  // bw.write("\n");
+			  }
 		  }
 		  test_num++;
       }
       System.out.println("\n" + ((double) precision / p) + " PRECISION on testing data");
+      
+      // bw.close();
 	}
 
     //TODO Verb normalization for Narrative Schema
