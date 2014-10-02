@@ -20,8 +20,9 @@ import edu.illinois.cs.cogcomp.nlp.lemmatizer.AugmentedLemmatizer;
 public class FeaturePreprocessor {
 	List<WinogradCorefInstance2> allInstances = null; 
 	public Map<String, Integer> tokenMap = new HashMap<String, Integer> ();
-	public Map<Pair<String, String>, Integer> tokenPairMap = new HashMap<Pair<String, String>, Integer> ();
-	//public Map<String, Integer> connectiveMap = new HashMap<String, Integer> ();
+	public Map<String, Integer> tokenPairMap1 = new HashMap<String, Integer> ();
+	public Map<String, Integer> tokenPairMap2 = new HashMap<String, Integer> ();
+	public Map<String, Integer> pairwiseDependentMap = new HashMap<String, Integer> ();
 	
 	// i-th key corresponds to the i-th sentence. The value corresponds to the token start and end index. 
 	public Map<Integer, Pair<Integer, Integer>> antVerbIndex = new HashMap<Integer, Pair<Integer, Integer>> (); 
@@ -55,7 +56,7 @@ public class FeaturePreprocessor {
 				e.printStackTrace();
 				System.exit( -1 );
 			}
-		}
+		}		
 	}
 
 	public void readInstanceVerbs() { 		
@@ -169,4 +170,5 @@ public class FeaturePreprocessor {
 	public Pair<Integer,Integer> getVerbTokenIndexGivenInstanceIndex_pronoun(int instanceIndex) { 
 		return pronounVerbIndex.get(instanceIndex); 
 	}
+	
 }

@@ -64,12 +64,14 @@ public class FeatureExtractor {
 
 	public ArrayList<NarrativeSchemaInstance> schemas;
 
-	private ArrayList<String> connectives = new ArrayList<String>();
+	public TextAnnotation ta = null; 
+	
+	public ArrayList<String> connectives = new ArrayList<String>();
 
 	public FeatureExtractor() { 
 		connectiveSetup();
 
-		// initialize all of the gloabl variables in the class 
+		// initialize all of the global variables in the class 
 		this.ins = null; 
 		this.fp = null;
 		this.instance_num = -1; 
@@ -90,6 +92,8 @@ public class FeatureExtractor {
 		antecend2_head_end_word_offset = -1;
 		pronoun_head_start_word_offset = -1;
 		pronoun_head_end_word_offset = -1;
+		
+		ta = null; 
 	}
 
 	public void setInstance( WinogradCorefInstance2 ins ) { 
@@ -125,6 +129,16 @@ public class FeatureExtractor {
 		pronoun_verb_start_word_offset = pro_verb_index.getFirst();
 		pronoun_verb_end_word_offset = pro_verb_index.getSecond();
 	}
+
+	public void extractTextAnnotation() { 
+		ta = null; 
+		try {
+			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
 	
 	// the final extraction algorithm here s
 	public double[] Extract() throws Exception { 
@@ -153,14 +167,6 @@ public class FeatureExtractor {
 				|| antecend2_head_start_word_offset == -1 
 				|| antecend2_head_end_word_offset == -1 )
 			throw new Exception(); 
-
-		TextAnnotation ta = null; 
-		try {
-			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		String[] toks = ta.getTokens(); 
 		if( connective_word_start_word_offset >  toks.length ) { 
@@ -199,8 +205,7 @@ public class FeatureExtractor {
 			System.out.println("antecend2_head_start_word_offset = " + antecend2_head_start_word_offset ); 
 			System.out.println("toks.length = " + toks.length);
 			throw new Exception(); 
-		}
-		
+		}		
 		if( pronoun_head_start_word_offset >  toks.length ) { 
 			System.out.println("inconsistent sizes"); 
 			System.out.println("pronoun_head_start_word_offset  = " + pronoun_head_start_word_offset ); 
@@ -311,7 +316,7 @@ public class FeatureExtractor {
 		
 		return featuresAll; 
 	}
-
+	
 	public void extractConnective() {
 		// Just Hack
 		// check for token ? all the pronoun_char_offset
@@ -713,5 +718,43 @@ public class FeatureExtractor {
 		if (ins.correct_antecedent.equals(ins.antecedent2)) return -1;
 		System.out.println("Error: Instance Label can not decide\t"+ins.antecedent1+"\t"+ins.antecedent2+"\t"+ins.correct_antecedent);
 		return -1;
+	}
+	// update the tables given the current features 
+	public void updateTables() { 
+		String[] toks = ta.getTokens(); 
+		
+		// unigram features 
+		double[] unigram_features = new double[fp.tokenMap.size()]; 
+		for( int i = 0; i < toks.length; i++) { 
+			// exclude the connective 
+			if( i == connective_word_start_word_offset  ) //&& i < connective_word_end_word_offset
+				continue; 
+			if( !fp.tokenMap.containsKey( toks[i] )  )
+				fp.tokenMap.put( toks[i], fp.tokenMap.size() - 1 ); 
+		}
+		
+		// bigram features 
+		for( int i = 0; i < connective_word_start_word_offset; i++) { 
+			if( !fp.tokenPairMap1.containsKey( toks[i] ) )
+				fp.tokenPairMap1.put( toks[i], fp.tokenPairMap1.size() - 1 ); 			
+		}
+		for( int j = connective_word_start_word_offset+1; j < toks.length; j++) { 
+			if( !fp.tokenPairMap2.containsKey( toks[j] ) )
+				fp.tokenPairMap2.put( toks[j], fp.tokenPairMap2.size() - 1 ); 		
+		}
+		
+		// pairwise dependent table 
+		if( !fp.pairwiseDependentMap.containsKey( toks[antecend1_head_start_word_offset] ) ) 
+			fp.pairwiseDependentMap.put( toks[antecend1_head_start_word_offset], fp.pairwiseDependentMap.size() );
+		if( !fp.pairwiseDependentMap.containsKey( toks[antecend2_head_start_word_offset] ) ) 
+			fp.pairwiseDependentMap.put( toks[antecend2_head_start_word_offset], fp.pairwiseDependentMap.size() );
+		if( !fp.pairwiseDependentMap.containsKey( toks[pronoun_head_start_word_offset] ) ) 
+			fp.pairwiseDependentMap.put( toks[pronoun_head_start_word_offset], fp.pairwiseDependentMap.size() );
+		if( !fp.pairwiseDependentMap.containsKey( toks[antecend1_verb_start_word_offset] ) ) 
+			fp.pairwiseDependentMap.put( toks[antecend1_verb_start_word_offset], fp.pairwiseDependentMap.size() );
+		if( !fp.pairwiseDependentMap.containsKey( toks[antecend2_verb_start_word_offset] ) ) 
+			fp.pairwiseDependentMap.put( toks[antecend2_verb_start_word_offset], fp.pairwiseDependentMap.size() );
+		if( !fp.pairwiseDependentMap.containsKey( toks[pronoun_verb_start_word_offset] ) ) 
+			fp.pairwiseDependentMap.put( toks[pronoun_verb_start_word_offset], fp.pairwiseDependentMap.size() );		
 	}
 }
