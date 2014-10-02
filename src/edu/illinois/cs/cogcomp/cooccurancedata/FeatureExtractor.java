@@ -629,7 +629,12 @@ public class FeatureExtractor {
 			int a=checkVerb(verb1,schema.events);
 			int b=checkVerb(verb2,schema.events);
 			if (a!=-1 && b!=-1) {
-				System.out.println("hit");
+				// System.out.println("hit");
+				// System.out.println(ins.sentence);
+				// for (int j=0;j<schema.length;j++) {
+				//     System.out.print(schema.events[j]+" ");
+				// }
+				System.out.println();
 				generalScore=schema.generalScore;
 				verbScore1=schema.eventScores[a];
 				verbScore2=schema.eventScores[b];
