@@ -19,7 +19,7 @@ public class featureExtractorTest {
 		pr.deserializeData2();
 		
 		// feature pre-processor 
-		FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, false, true);
+		FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, true, true);
 		fp.readInstanceVerbs();
 		//fp.Process(); 
 		
@@ -51,28 +51,20 @@ public class featureExtractorTest {
 		}
 		
 		System.out.println( "fp.tokenMap.size() = " + fp.tokenMap.size() ); 
-		System.out.println( "fp.tokenPairMap1.size() = " + fp.tokenPairMap1.size() ); 
-		System.out.println( "fp.tokenPairMap2.size() = " + fp.tokenPairMap2.size() );
+		System.out.println( "fp.tokenPairMap.size() = " + fp.tokenPairMap.size() ); 
 		System.out.println( "fp.pairwiseDependentMap.size() = " + fp.pairwiseDependentMap.size() );
 		System.out.println( "featureExtractors[0].connectives.size() = " + featureExtractors[0].connectives.size() );
 		System.out.println( "---------------------------- "); 
-		int num1 = fp.tokenMap.size(); 
-		System.out.println( "Size of the unigram features " + num1 );
-		int num2 = fp.tokenPairMap1.size() * fp.tokenPairMap1.size() ; 
-		System.out.println( "Size of the bigram features " +  num2 );
-		int num3 = fp.tokenPairMap1.size() * fp.tokenPairMap1.size() * featureExtractors[0].connectives.size(); 
-		System.out.println( "Size of the triple features " + num3 );
-		int num4 = fp.pairwiseDependentMap.size() * fp.pairwiseDependentMap.size(); 
-		System.out.println( "Size of the pairwise dependent features " + num4 );
-		
-		/*
+		System.out.println( "SUM " + (fp.tokenMap.size() + fp.tokenPairMap.size() 
+				+ fp.pairwiseDependentMap.size() + featureExtractors[0].connectives.size()) ); 
+	
 		instance_num = 0; 
 		for( WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations )
 		{
-			double[] featureVector = new double[0]; 
+			double[] featureVector = null; 
 			FeatureExtractor fe = featureExtractors[instance_num]; 
 			try {
-				featureVector = fe.Extract();
+				featureVector = fe.Extract2();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -83,7 +75,6 @@ public class featureExtractorTest {
 			if( instance_num > 10 )
 				break; 			
 		}
-		 */
 	} 
 	
 	// this produces a lot of redundant feature vectors 
