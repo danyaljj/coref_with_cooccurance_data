@@ -1,0 +1,352 @@
+CONTENTS
+=================
+
+1 PURPOSE  
+	1.1  The Illinois Lemmatizer 
+	1.2  License 
+2 System requirements 
+3 Programmatic Use of the Lemmatizer
+3.1 Lemmatizing Single Words
+3.2 Lemmatizing Views
+4 Download contents 
+5 Dependencies
+6 Compiling and Running the Illinois Lemmatizer
+7 Contact Information 
+8 Developer Notes
+
+==============================
+
+
+1. PURPOSE
+
+Lemmatizers/Stemmers are intended to simplify text at the token level. The
+underlying principle is that it can be helpful to treat uniformly all
+versions of words with the same basic form and meaning -- for example, to
+strip away prefixes and suffixes due to e.g. verb tense or plural forms.
+
+Stemmers tend to be simpler, looking only at removing and/or replacing a 
+limited number of characters at the end (and possibly the beginning) of
+words in order to reduce unhelpful variability. For example, the two
+sentences
+
+a). "Many lions run fast" 
+
+and 
+
+b). "A lion running fast" 
+
+have only one token in common ('fast'). A stemmer might be expected to 
+strip the 's' from 'lions' and the 'ning' from 'running' to allow an
+exact match to determine that the two sentences in fact have three words
+in common -- 'lion', 'run', and 'fast'. However, because they use
+heuristics, stemmers tend to generate ill-formed roots for a significant
+number of cases. 
+
+Lemmatizers are intended to be slightly more general, in that they 
+typically have a dictionary of root forms of irregular verbs, and which
+can therefore replace 'tries' with 'try', or 'ran' with 'run'. 
+While slower than stemmers, lemmatizers tend to produce more consistent,
+higher-quality output.  
+
+
+1.1 The Illinois Lemmatizer
+
+The Illinois Lemmatizer uses the JWNL library to access WordNet's
+dictionaries to identify word root forms, and also uses some additional
+resources to handle prefixes and some verb forms.
+
+
+1.2 License
+
+The Illinois Lemmatizer is available under a Research and Academic 
+use license. For more details, visit the Curator website and click 
+the download link.
+
+==============================
+
+2. SYSTEM REQUIREMENTS
+
+This software was developed on the following platform:
+
+Scientific Linux (2.6.32-279.5.2.el6.x86_64)
+Java 1.6
+
+This package depends on the Cognitive Computation Group (CCG)'s Curator 
+libraries, which define Thrift-based data structures for NLP, and a 
+number of other libraries and packages. These are included as part of
+the tarball containing the Lemmatizer itself.
+
+The memory required should be relatively small -- in development, 500M 
+was used. 
+ 
+ 
+==============================
+
+3. PROGRAMMATIC USE OF THE LEMMATIZER
+
+Use the class AugmentedLemmatizer. This is a singleton class, in part because
+it can be configured to cache lemmas for faster performance. 
+
+You will need to initialize the AugmentedLemmatizer before use...
+
+
+import edu.illinois.cs.cogcomp.nlp.lemmatizer.AugmentedLemmatizer;
+
+...
+
+    String configFile = "config/lemmatizerConfig.txt";
+
+    try
+    {
+       AugmentedLemmatizer.init( args[ 0 ] );
+    }
+    catch ( IllegalArgumentException e )
+    {
+        e.printStackTrace();
+        System.exit( -1 );
+    }
+    catch ( JWNLException e )
+    {
+        e.printStackTrace();
+        System.exit( -1 );
+    }
+    catch ( IOException e )
+    {
+        e.printStackTrace();
+        System.exit( -1 );
+    }
+    ...
+    
+
+You can use it in two main ways:
+
+a) Lemmatize a single word
+-- return one or more candidate root forms of a word.
+
+b) Lemmatize a Record data structure's tokens, creating a new view.
+-- this use allows easy integration with the Illinois NLP Curator, which specifies
+a set of data structures for integrating the output of multiple NLP tools. 
+
+
+
+3.1 Lemmatizing Single Words
+
+You will need to initialize the AugmentedLemmatizer as shown above.
+
+
+The first method to lemmatizer a single word and return a single lemma requires
+a Part of Speech (POS) tag as the second argument to the method call. For information
+about Part of Speech tagging, see (http://cogcomp.cs.illinois.edu/page/demo_view/POS).
+
+    String lemma = AugmentedLemmatizer.getSingleLemma( "leaders", "NNS" );
+    System.out.println( lemma );
+    // should return 'leader'
+    
+The second method will return all lemmas identified using the underlying WordNet resources
+or other heuristics/resources at its disposal:
+
+    List< String > lemmas = AugmentedLemmatizer.getSingleLemma( "retakes", "NNS" );
+    System.out.println( lemma );
+    // may potentially return more than one lemma, though not for this word... 
+    // ... if you know of a word that generates >1 lemma, please let us know :-)
+
+Note that there are also versions of these methods that take as their arguments
+a TextAnnotation object and a token index (see the Edison library -- 
+http://cogcomp.cs.illinois.edu/page/software_view/Edison). 
+
+
+3.2 Lemmatizing Views
+
+There are methods for creating Lemma views in Records (Curator data structure --
+see http://cogcomp.cs.illinois.edu/page/software_view/Curator) and in TextAnnotations 
+(Edison data structure -- see http://cogcomp.cs.illinois.edu/page/software_view/Edison).
+
+You will need to initialize the AugmentedLemmatizer as shown above.
+
+In each case, the AugmentedLemmatizer creates a view with the name specified by the
+static public String member,  AugmentedLemmatizer.LEMMA_VIEW. 
+
+
+import edu.illinois.cs.cogcomp.edison.sentences.Constituent;
+import edu.illinois.cs.cogcomp.edison.sentences.TextAnnotation;
+import edu.illinois.cs.cogcomp.edison.sentences.View;
+
+import edu.illinois.cs.cogcomp.nlp.lemmatizer.AugmentedLemmatizer;
+
+...
+
+// don't forget to initialize the AugmentedLemmatizer...
+
+...
+
+    String sampleText = "The leaders who trod these fallen leaves were dogged by dogs not from these lands.";
+    
+    TextAnnotation inputTa = new TextAnnotation( "TEST", "TEST", sampleText, SentenceViewGenerators.LBJSentenceViewGenerator  );
+
+    String configFile = "config/lemmatizerConfig.txt";
+    View lemmaView = null;
+        
+    try
+    {
+        lemmaView = AugmentedLemmatizer.createLemmaView( inputTa );
+    }
+    catch ( JWNLException e )
+    {
+        e.printStackTrace();
+    }
+    catch ( IOException e )
+    {
+        e.printStackTrace();
+    }
+
+    List< Constituent > spans = inputTa.getView( AugmentedLemmatizer.LEMMA_VIEW ).getConstituents();
+
+    for ( Span s : spans )
+       out.print( s.getLabel() + ", " );
+
+...
+
+Note that the lemma value is stored as the Constituent label. 
+
+The example to create the Record View is similar, except that you will need something like
+CuratorUtils (http://cogcomp.cs.illinois.edu/page/software_view/curator-utils) to populate 
+the Record data structure:
+
+import edu.illinois.cs.cogcomp.thrift.base.Labeling;
+import edu.illinois.cs.cogcomp.thrift.base.Span;
+import edu.illinois.cs.cogcomp.thrift.curator.Record;
+// from curator-utils:
+import edu.illinois.cs.cogcomp.curator.RecordGenerator;
+...
+
+// don't forget to initialize the AugmentedLemmatizer...
+
+...
+        Labeling lemmaView = null;
+        String corpusId = "testCreateLemmaRecordView";
+        String textId = "testCreateLemmaRecordView";
+        
+        
+        String text = 
+        
+        Record inputRecord = RecordGenerator.generateInitialRecord( String text_, boolean respectTokenization_ )
+
+// you'll need to add POS information -- for example, by calling the Curator... 
+        ...
+
+        try
+        {
+            lemmaView = AugmentedLemmatizer.createLemmaRecordView( inputRecord, corpusId, textId );
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+        }
+        catch ( JWNLException e )
+        {
+            e.printStackTrace();
+        }
+
+        boolean isTested = false;
+        
+        if ( null != lemmaView )
+        {
+            List< Span > spans = lemmaView.getLabels();
+            for ( Span s : spans )
+                out.print( s.getLabel() + ", " );
+        }
+ ...
+                
+
+
+==============================
+
+3. DOWNLOAD CONTENTS
+
+The Illinois Lemmatizer is released as either a Curator component or as 
+part of the Illinois Preprocessor bundle. The Curator downloads a tarball 
+as part of its installation process (from which it is to be assumed you 
+have obtained this README). 
+
+The main directory has four sub-directories:
+
+config/ -- configuration files needed by the Lemmatizer
+dist/ -- the binary jar for the Lemmatizer
+doc/ -- documentation (javadoc, change log, and this README)
+lib/ -- dependencies of the Lemmatizer
+src/ -- source files for the Lemmatizer
+
+
+==============================
+
+4. DEPENDENCIES
+
+The list of lemmatizer-specific dependencies is as follows:
+
+cogcomp-common-resources-1.2.jar  hamcrest-core-1.3.jar
+commons-cli-1.2.jar               httpclient-4.1.2.jar
+commons-codec-1.8.jar             httpcore-4.1.3.jar
+commons-collections-3.2.1.jar     junit-4.11.jar
+commons-configuration-1.9.jar     jwi-2.2.3.jar
+commons-io-1.3.2.jar              jwnl-1.4_rc3.jar
+commons-lang-2.5.jar              LBJLibrary-2.8.2.jar
+commons-lang3-3.1.jar             libthrift-0.8.0.jar
+commons-logging-1.1.1.jar         log4j-1.2.14.jar
+coreUtilities-0.1.8.jar           logback-classic-0.9.17.jar
+curator-archive-0.0.2.jar         logback-core-0.9.17.jar
+curator-interfaces-0.7.jar        slf4j-api-1.5.8.jar
+curator-utils-0.0.3.jar           slf4j-log4j12-1.5.8.jar
+edison-0.5.jar                    snowball-1.0.jar
+gson-2.2.4.jar                    trove4j-3.0.3.jar
+
+
+The Lemmatizer uses JWNL, which in turn relies on WordNet being stored on your
+system. There are two configuration files: the first, lemmatizerConfig.txt,
+specifies the name of the JWNL configuration file (the version in the distribution
+is 'jwnl_properties.xml', also in the config/ directory. This has a value
+
+<param name="dictionary_path" value="/shared/grandpa/opt/dict"/>
+
+whose value should be set to the location of WordNet on your system. 
+
+
+==============================
+
+6. COMPILING AND RUNNING THE ILLINOIS LEMMATIZER
+
+We assume that people will run this as part of the Curator, or of the
+Illinois Preprocessor.  If you are a developer, you can use Maven to get
+and compile this project.  
+
+
+==============================
+
+7. CONTACT INFORMATION
+
+You can ask questions/report problems via the CCG's software newsgroup, which you 
+can sign up for here:
+
+http://lists.cs.uiuc.edu/mailman/listinfo/illinois-ml-nlp-users
+
+
+
+================================
+
+8. DEVELOPER NOTES
+
+The AugmentedLemmatizer must be initialized first, after which an instance can 
+be obtained. Since it is configurable, the initialization requires a config file
+or ResourceManager object. The goal in the current design is to minimize the number
+of places that must know the config file to be passed. 
+
+
+TODO: 
+
+* make this thread-safe when cache is being maintained
+
+* in test, replace the absent IllinoisPreprocessor with a serialized record
+  with the specified text, plus sentence, token and POS views.
+  -- Until this is done, skip tests on mvn compile/deploy.
+
+
+ 

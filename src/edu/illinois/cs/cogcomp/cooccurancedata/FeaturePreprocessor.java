@@ -9,22 +9,54 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.didion.jwnl.JWNLException;
 import edu.illinois.cs.cogcomp.cooccurancedata.datastructures.WinogradCorefInstance2;
 import edu.illinois.cs.cogcomp.core.datastructures.Pair;
 import edu.illinois.cs.cogcomp.edison.sentences.EdisonSerializationHelper;
 import edu.illinois.cs.cogcomp.edison.sentences.TextAnnotation;
+import edu.illinois.cs.cogcomp.nlp.lemmatizer.AugmentedLemmatizer;
 
 //this reads all of the instances, and creates feature tables. 
 public class FeaturePreprocessor {
 	List<WinogradCorefInstance2> allInstances = null; 
 	public Map<String, Integer> tokenMap = new HashMap<String, Integer> ();
+	public Map<Pair<String, String>, Integer> tokenPairMap = new HashMap<Pair<String, String>, Integer> ();
+	//public Map<String, Integer> tokenPairMap2 = new HashMap<String, Integer> ();
+	public Map<Pair<String, String>, Integer> pairwiseDependentMap = new HashMap<Pair<String, String>, Integer> ();
 	
 	// i-th key corresponds to the i-th sentence. The value corresponds to the token start and end index. 
 	public Map<Integer, Pair<Integer, Integer>> antVerbIndex = new HashMap<Integer, Pair<Integer, Integer>> (); 
 	public Map<Integer, Pair<Integer, Integer>> pronounVerbIndex = new HashMap<Integer, Pair<Integer, Integer>> (); 
+		
+	boolean withLemmatization = false; 
 	
-	public FeaturePreprocessor(List<WinogradCorefInstance2> allInstances) { 
-		this.allInstances = allInstances; 
+	/// goldVerns : if it is true, we would use the gold verbs, some extracted manually, and other using SRL
+	// 				if it is false, we would use the verbs discovered using SRL 
+	public FeaturePreprocessor(List<WinogradCorefInstance2> allInstances, boolean withLemmatization, boolean goldVerbs) { 
+		this.allInstances = allInstances;
+		this.withLemmatization = withLemmatization; 
+		if( withLemmatization ){ 		
+			String configFile = "/home/khashab2/Downloads/illinois-lemmatizer/config/lemmatizerConfig.txt"; 
+			try
+			{
+				AugmentedLemmatizer.init( configFile );
+			}
+			catch ( IllegalArgumentException e )
+			{
+				e.printStackTrace();
+				System.exit( -1 );
+			}
+			catch ( JWNLException e )
+			{
+				e.printStackTrace();
+				System.exit( -1 );
+			}
+			catch ( IOException e )
+			{
+				e.printStackTrace();
+				System.exit( -1 );
+			}
+		}		
 	}
 
 	public void readInstanceVerbs() { 		
@@ -138,4 +170,5 @@ public class FeaturePreprocessor {
 	public Pair<Integer,Integer> getVerbTokenIndexGivenInstanceIndex_pronoun(int instanceIndex) { 
 		return pronounVerbIndex.get(instanceIndex); 
 	}
+	
 }

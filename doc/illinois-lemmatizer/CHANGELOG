@@ -1,0 +1,23 @@
+0.0.2	* removed Lucene KpStemmer, because the lucene stemmer classes conflicted with the 
+	      Edison dependency 'snowball-1.0', which has the exact same path name. This led to 
+	      subclasses of each failing to find their parent class's protected methods. 
+	    * removed compile-time dependency on IllinoisPreprocessor, because otherwise, can't 
+	      incorporate it into the IllinoisPreprocessor. This makes testing difficult, as tests
+	      require Record objects to be created. Pro tem, rely on tests in IllinoisPreprocessor
+	      and of Curator Lemmatizer component. 
+	    * moved LemmatizerTest out of src/test/java to the main package to preserve it for
+	      later modification 
+	      
+0.0.3--
+0.0.5   * added tests using serialized records, fixing problem referred to for 0.0.2
+          above
+        * updated dependencies, using curator-utils to provide serialized record handling
+
+0.0.6--
+0.0.7   * fixed a bug (unexplained) where the JWNL library did not resolve common plural forms
+          like "dogs" (though it did resolve others), using solution provided by John Wieting
+          (uses MIT's WordNet API for that case)).
+          
+0.0.8   * updated documentation as standalone package (i.e., when using other than as a curator
+          component)
+              

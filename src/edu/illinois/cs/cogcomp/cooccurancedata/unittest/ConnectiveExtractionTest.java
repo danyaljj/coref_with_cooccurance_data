@@ -21,7 +21,7 @@ public class ConnectiveExtractionTest {
 		int instance_num = 0; 
 		FeatureExtractor fe = new FeatureExtractor(); 
 		fe.setNarrativeSchema(allInstances);
-		FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations );
+		FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, true, true);
 		fp.Process();
 		fe.setPreprocessor( fp );
 		for( WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations ) { 

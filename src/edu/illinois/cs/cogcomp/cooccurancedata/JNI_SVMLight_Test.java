@@ -32,7 +32,7 @@ public class JNI_SVMLight_Test {
 	  NarrativeSchemaReader nsreader=new NarrativeSchemaReader();
 	  ArrayList<NarrativeSchemaInstance> allInstances = nsreader.readSchema(6); // 6,8,10,12
 	  // feature pre-processor 
-	  FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations );
+	  FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, false, true);
 	  fp.Process(); 
 	  // the size of the verbs must match the number of the instances 
 	  System.out.println( "pr.allInstances_withAntecedentAnnotations.size() = " + pr.allInstances_withAntecedentAnnotations.size() ); 
