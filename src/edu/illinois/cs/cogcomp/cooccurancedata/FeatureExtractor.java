@@ -150,10 +150,12 @@ public class FeatureExtractor {
 		
 		try {
 			lemmaVu = AugmentedLemmatizer.createLemmaView( ta );
-		} catch (JWNLException | IOException e) {
-			// TODO Auto-generated catch block
+		} catch (JWNLException e) {
 			e.printStackTrace();
-		} 		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		lemma_cons = lemmaVu.getConstituents(); 
 	}
 	

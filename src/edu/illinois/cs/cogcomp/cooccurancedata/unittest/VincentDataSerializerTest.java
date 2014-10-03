@@ -69,10 +69,11 @@ public class VincentDataSerializerTest {
 			View lemmaVu = null; 
 			try {
 				lemmaVu = AugmentedLemmatizer.createLemmaView( ta );
-			} catch (JWNLException | IOException e) {
-				// TODO Auto-generated catch block
+			} catch (JWNLException e) {
 				e.printStackTrace();
-			} 
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			
 			List<Constituent> lemma_cons = lemmaVu.getConstituents(); 
 			System.out.println("lemma count = " + lemma_cons.size() ); 
