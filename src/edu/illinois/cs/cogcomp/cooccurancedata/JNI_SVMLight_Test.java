@@ -23,7 +23,7 @@ public class JNI_SVMLight_Test {
  
 	public static int N = 0;
 
-	public static int M = 36932727; //18468506
+	public static int M = 63834; //18468506
 
 	public static void main(String[] args) throws Exception {
 	  PronounDisambiguationDataReader pr = new PronounDisambiguationDataReader(); 
@@ -32,8 +32,9 @@ public class JNI_SVMLight_Test {
 	  NarrativeSchemaReader nsreader=new NarrativeSchemaReader();
 	  ArrayList<NarrativeSchemaInstance> allInstances = nsreader.readSchema(6); // 6,8,10,12
 	  // feature pre-processor 
-	  FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, false, true);
-	  fp.Process(); 
+	  FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, true, true);
+	  fp.readInstanceVerbs();
+ 
 	  // the size of the verbs must match the number of the instances 
 	  System.out.println( "pr.allInstances_withAntecedentAnnotations.size() = " + pr.allInstances_withAntecedentAnnotations.size() ); 
 	  System.out.println( "fp.antVerbIndex.size() = " + fp.antVerbIndex.size() ); 
@@ -41,8 +42,24 @@ public class JNI_SVMLight_Test {
 	  assert(pr.allInstances_withAntecedentAnnotations.size() == fp.antVerbIndex.size()); 
 	  assert(pr.allInstances_withAntecedentAnnotations.size() == fp.pronounVerbIndex.size()); 
 	  
+	  int instance_num = 0; 
+	  FeatureExtractor[] featureExtractors = new FeatureExtractor[pr.allInstances_withAntecedentAnnotations.size()]; 
 	  for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
 		  if (ins.test_or_train==1) N++;
+		  FeatureExtractor fe = new FeatureExtractor(); 
+		  fe.setInstance(ins); 
+		  fe.setInstanceNumber(instance_num);
+		  fe.extractTextAnnotation();
+		  fe.setPreprocessor(fp); 
+		  fe.setTheVerbIndices(); 
+		  fe.extractHeadNoun();  
+		  fe.extractConnective();
+		  fe.updateTables();
+		  fe.setNarrativeSchema(allInstances);
+		  fe.extractNarrativeSchema(1);
+		  fe.extractNarrativeSchema(2);
+		  featureExtractors[instance_num] = fe;
+		  instance_num++; 
 	  }
 	  
 	  SVMLightInterface trainer = new SVMLightInterface();
@@ -53,13 +70,10 @@ public class JNI_SVMLight_Test {
       SVMLightInterface.SORT_INPUT_VECTORS = true;
       
 	  int train_num = 0;
-	  FeatureExtractor fe = new FeatureExtractor();
-	  fe.setPreprocessor(fp);
-	  fe.setNarrativeSchema(allInstances);
 	  int p=0;
 	  for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
 		  if (ins.test_or_train==1) {
-		      traindata[p] = getFeatureVector(ins,fe,train_num);
+		      traindata[p] = getFeatureVector(ins,featureExtractors[train_num]);
 		      p++;
 		  }
 		  train_num++;
@@ -88,17 +102,16 @@ public class JNI_SVMLight_Test {
 	  }
 	  System.out.println("\n" + ((double) precision / N) + " PRECISION on training data");
 	  
-	  // BufferedWriter bw=IOManager.openWriter("output.txt");
+	  BufferedWriter bw=IOManager.openWriter("output.txt");
 	  
       precision = 0;
       int test_num=0;
       p=0;
       for (WinogradCorefInstance2 ins : pr.allInstances_withAntecedentAnnotations) {
 		  if (ins.test_or_train==0) {
-			  LabeledFeatureVector test_data=getFeatureVector(ins,fe,test_num);
+			  LabeledFeatureVector test_data=getFeatureVector(ins,featureExtractors[test_num]);
 			  double a = model.classify(test_data);
-			  fe.setInstance(ins); 
-			  int b = fe.getLabel();
+			  int b = featureExtractors[test_num].getLabel();
 			  
 			  String men="";
 			  String pred="";
@@ -117,35 +130,28 @@ public class JNI_SVMLight_Test {
 		
 			  if ((a < 0 && b < 0) || (a > 0 && b > 0)) {
 				  precision++;
-				  // bw.write("Right: "+ins.sentence+"\t"+men+"\t"+pred+"\t"+"\n");
+				  bw.write("Right: "+ins.sentence+"\t"+men+"\t"+pred+"\t"+"\n");
 			  }
 			  else {
-				  // bw.write("Wrong: "+ins.sentence+"\t"+men+"\t"+pred+"\t"+"\n");
+				  bw.write("Wrong: "+ins.sentence+"\t"+men+"\t"+pred+"\t"+"\n");
 			  }
 			  
 			  p++;
 			  if (p%2==0) {
-				  // bw.write("\n");
+				  bw.write("\n");
 			  }
 		  }
 		  test_num++;
       }
       System.out.println("\n" + ((double) precision / p) + " PRECISION on testing data");
       
-      // bw.close();
+      bw.close();
 	}
 
     //TODO Verb normalization for Narrative Schema
 	
-	public static LabeledFeatureVector getFeatureVector(WinogradCorefInstance2 ins, FeatureExtractor fe, int instance_num) throws Exception {
-	  fe.setInstance(ins); 
-	  fe.setInstanceNumber(instance_num); 
-	  fe.setTheVerbIndices(); 
-	  fe.extractHeadNoun();  
-	  fe.extractConnective();
-	  fe.extractNarrativeSchema(1);
-	  fe.extractNarrativeSchema(2);
-	  double[] featureVector = fe.Extract();
+	public static LabeledFeatureVector getFeatureVector(WinogradCorefInstance2 ins, FeatureExtractor fe) throws Exception {
+	  double[] featureVector = fe.Extract2();
 	  
 	  //System.out.println(featureVector.length);
 	  

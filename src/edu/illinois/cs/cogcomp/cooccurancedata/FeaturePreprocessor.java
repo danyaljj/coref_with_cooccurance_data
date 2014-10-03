@@ -36,7 +36,7 @@ public class FeaturePreprocessor {
 		this.allInstances = allInstances;
 		this.withLemmatization = withLemmatization; 
 		if( withLemmatization ){ 		
-			String configFile = "/home/khashab2/Downloads/illinois-lemmatizer/config/lemmatizerConfig.txt"; 
+			String configFile = "config/lemmatizerConfig.txt"; 
 			try
 			{
 				AugmentedLemmatizer.init( configFile );

@@ -29,10 +29,10 @@ class MySpan {
 }
 
 public class FeatureExtractor {
-	static public WinogradCorefInstance2 ins; 
+	public WinogradCorefInstance2 ins; 
 	FeaturePreprocessor fp; 
 	int instance_num; 
-	boolean withLemmatization = false; 
+	boolean withLemmatization = true; 
 	
 	public int antecend1_verb_start_word_offset; 
 	public int antecend1_verb_end_word_offset; 
@@ -424,8 +424,11 @@ public class FeatureExtractor {
 		
 		// all the toks must be found in the hashmap 
 		for( int i = 0; i < toks.length; i++) { 
-			if( !fp.tokenMap.containsKey(toks[i]) )
-				throw new Exception(); 
+			if( !fp.tokenMap.containsKey(toks[i]) ) {
+				if( i == connective_word_start_word_offset  ) //&& i < connective_word_end_word_offset
+					continue;
+				throw new Exception();
+			}
 		}
 
 		double[] featuresAll = new double[0]; 
@@ -508,7 +511,7 @@ public class FeatureExtractor {
 		bigram_features_dependent[ v_a2_v_p ] = 1;
 		
 		featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent);
-		
+/*		
 		double[] narrative_schema_features=new double[12];
 		narrative_schema_features[0]=antecend1_generalScore;
 		narrative_schema_features[1]=antecend1_verbScore1;
@@ -522,6 +525,12 @@ public class FeatureExtractor {
 		narrative_schema_features[9]=antecend2_roleScoreMin;
 		narrative_schema_features[10]=antecend2_roleScoreMax;
 		narrative_schema_features[11]=antecend2_roleScoreAvg;
+*/
+		double[] narrative_schema_features=new double[2];
+		if (antecend1_generalScore>0) narrative_schema_features[0]=1;
+		else narrative_schema_features[0]=0;
+		if (antecend2_generalScore>0) narrative_schema_features[1]=1;
+		else narrative_schema_features[1]=0;
 		
 		featuresAll = ArrayUtils.addAll(featuresAll, narrative_schema_features);
 		
@@ -765,23 +774,28 @@ public class FeatureExtractor {
 	}
 
 	private String getVerb(int start, int end) {
-		TextAnnotation ta = null; 
-		try {
-			ta = EdisonSerializationHelper.deserializeFromBytes(ins.textAnnotation);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String[] toks = null; 
+		if( !withLemmatization )
+			toks = ta.getTokens(); 
+		else{ 
+			assert(ta.getTokens().length == lemma_cons.size() ); 
+			toks = new String[lemma_cons.size()]; 
+			for(int i = 0; i < lemma_cons.size(); i++) { 
+				Constituent cons = lemma_cons.get(i); 
+				toks[i] = cons.getLabel(); 
+			}
 		}
 
-		String verb=ta.getToken(start);
+		String verb=toks[start];
 		for (int i=start+1;i<end;i++) {
-			verb=verb+" "+ta.getToken(i);
+			verb=verb+" "+toks[i];
 		}
 
 		return verb;
 	}
 
 	private int checkVerb(String verb, String[] events) {
+		verb=verb.replace(' ', '_');
 		for (int i=0;i<events.length;i++) {
 			if (verb.equals(events[i])) {
 				return i;
@@ -845,12 +859,14 @@ public class FeatureExtractor {
 			int a=checkVerb(verb1,schema.events);
 			int b=checkVerb(verb2,schema.events);
 			if (a!=-1 && b!=-1) {
-				// System.out.println("hit");
-				// System.out.println(ins.sentence);
-				// for (int j=0;j<schema.length;j++) {
-				//     System.out.print(schema.events[j]+" ");
-				// }
+				/*
+				System.out.println("hit");
+				System.out.println(ins.sentence);
+				for (int j=0;j<schema.length;j++) {
+					System.out.print(schema.events[j]+" ");
+				}
 				System.out.println();
+				*/
 				generalScore=schema.generalScore;
 				verbScore1=schema.eventScores[a];
 				verbScore2=schema.eventScores[b];
@@ -900,11 +916,11 @@ public class FeatureExtractor {
 		}
 	}
 	
-	private String getRoleFromSRL(View srlvu, String verb1, int start, int end) {
+	private String getRoleFromSRL(View srlvu, String verb, int start, int end) {
 		String role="";
 		List<Constituent> consts = srlvu.getConstituents();
 		for (Constituent conIns : consts ) { 
-			if (conIns.getSurfaceString().equals(verb1)) { 
+			if (conIns.getSurfaceString().equals(verb)) { 
 				List<Relation> incomRel = conIns.getIncomingRelations();
 				for( Relation rel : incomRel) {
 					if (rel.getRelationName().equals("A0")) {
