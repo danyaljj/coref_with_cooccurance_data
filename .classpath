@@ -12,22 +12,22 @@
 	<classpathentry kind="lib" path="lib/LBJLibrary-2.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/libthrift-0.4.jar"/>
 	<classpathentry kind="lib" path="lib/libthrift-0.8.0.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/jnisvmlight.jar"/>
-	<classpathentry kind="lib" path="lib/coreUtilities-0.1.6.jar"/>
+	<classpathentry kind="lib" path="lib/cogcomp-common-resources-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/coreUtilities-0.1.8.jar"/>
+	<classpathentry kind="lib" path="lib/illinois-lemmatizer-0.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/illinois-lemmatizer-0.0.7-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jnisvmlight.jar"/>
 	<classpathentry kind="lib" path="lib/jwi-2.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/jwnl-1.4_rc3.jar"/>
-	<classpathentry kind="lib" path="lib/illinois-lemmatizer-0.0.7.jar"/>
-	<classpathentry kind="lib" path="lib/cogcomp-common-resources-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.9.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-1.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.5.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
