@@ -545,7 +545,7 @@ public class FeatureExtractor {
 		if (antecend2_generalScore>0) narrative_schema_features[1]=1;
 		else narrative_schema_features[1]=0;
 		
-		featuresAll = ArrayUtils.addAll(featuresAll, narrative_schema_features);
+//		featuresAll = ArrayUtils.addAll(featuresAll, narrative_schema_features);
 		
 		return featuresAll; 
 	}

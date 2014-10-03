@@ -81,29 +81,40 @@ public class featureExtractorTest {
 			double[] featureVector = null; 
 			FeatureExtractor fe = featureExtractors[instance_num]; 
 			try {
+				featureVector = fe.Extract2(0);
+				if (ins.test_or_train==1) {
+					getMat(fe.getLabel(),qid1,featureVector,bw1,0);
+					qid1++;
+				}
+				if (ins.test_or_train==0) {
+					getMat(fe.getLabel(),qid2,featureVector,bw2,0);
+					qid2++;
+				}
 				featureVector = fe.Extract2(1);
+				if (ins.test_or_train==1) {
+					getMat(fe.getLabel(),qid1,featureVector,bw1,1);
+					qid1++;
+				}
+				if (ins.test_or_train==0) {
+					getMat(fe.getLabel(),qid2,featureVector,bw2,1);
+					qid2++;
+				}
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			instance_num++;
 			
-			if (ins.test_or_train==1) {
-				getMat(fe.getLabel(),qid1,featureVector,bw1);
-				qid1++;
-			}
-			if (ins.test_or_train==0) {
-				getMat(fe.getLabel(),qid2,featureVector,bw2);
-				qid2++;
-			}
+
 			//System.out.println( "featureVector.length = " + featureVector.length ); 
 		}
 		
 		bw1.close();bw2.close();
 	} 
 	
-	private static void getMat(int label, int qid, double[] vec, BufferedWriter bw) throws Exception {
-		if (label==1) bw.write("2");
+	private static void getMat(int label, int qid, double[] vec, BufferedWriter bw, int option) throws Exception {
+		if ((label==1&&option==0) || (label==-1&&option==1)) bw.write("2");
 		else bw.write("1");
 		bw.write(" qid:"+qid/2);
 		for (int i=0;i<vec.length;i++) {

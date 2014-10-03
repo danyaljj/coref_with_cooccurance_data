@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.cooccurancedata.unittest;
 
+import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -9,6 +10,7 @@ import edu.illinois.cs.cogcomp.cooccurancedata.readers.PronounDisambiguationData
 
 public class GetInsFromRanker {
 	public static void main(String[] args) throws Exception{
+/*
 		PronounDisambiguationDataReader pr = new PronounDisambiguationDataReader(); 
 		pr.deserializeData2();
 		
@@ -38,6 +40,22 @@ public class GetInsFromRanker {
 			System.out.println(vec.get(i).sentence);
 			System.out.println(vec.get(i+1).sentence);
 			System.out.println();
+		}
+*/
+		ArrayList<String> lines = IOManager.readLines("results/illinois_coref/test.c.txt");
+		
+		int p=1;
+		BufferedWriter bw=null;
+		for (int i=0;i<lines.size();i++) {
+			if (i%10==0) {
+				bw=IOManager.openWriter("results/illinois_coref/test_"+p+".txt");
+				bw.write(lines.get(i)+"\n");
+			}
+			if ((i+5)%10==0) {
+				bw.write(lines.get(i)+"\n");
+				bw.close();
+				p++;
+			}
 		}
 	} 
 }
