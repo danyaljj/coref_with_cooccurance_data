@@ -15,7 +15,7 @@
 	<classpathentry kind="lib" path="lib/cogcomp-common-resources-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/coreUtilities-0.1.8.jar"/>
-	<classpathentry kind="lib" path="lib/illinois-lemmatizer-0.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/illinois-lemmatizer-0.0.7.jar" sourcepath="lib/illinois-lemmatizer-0.0.7-sources.jar"/>
 	<classpathentry kind="lib" path="lib/illinois-lemmatizer-0.0.7-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jnisvmlight.jar"/>
 	<classpathentry kind="lib" path="lib/jwi-2.2.3.jar"/>
@@ -29,5 +29,8 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-0.9.17.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

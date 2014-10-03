@@ -151,7 +151,7 @@ public class JNI_SVMLight_Test {
     //TODO Verb normalization for Narrative Schema
 	
 	public static LabeledFeatureVector getFeatureVector(WinogradCorefInstance2 ins, FeatureExtractor fe) throws Exception {
-	  double[] featureVector = fe.Extract2();
+	  double[] featureVector = fe.Extract2(0);
 	  
 	  //System.out.println(featureVector.length);
 	  

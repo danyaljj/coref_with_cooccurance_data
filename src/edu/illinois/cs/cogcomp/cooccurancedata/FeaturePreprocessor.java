@@ -30,13 +30,15 @@ public class FeaturePreprocessor {
 		
 	boolean withLemmatization = false; 
 	
-	/// goldVerns : if it is true, we would use the gold verbs, some extracted manually, and other using SRL
-	// 				if it is false, we would use the verbs discovered using SRL 
+	/// goldVerbs : if it is true, we would use the gold verbs, some extracted manually, and other using SRL
+	// 				if it is false, we would use the verbs discovered using SRL  --> Not working yet 
 	public FeaturePreprocessor(List<WinogradCorefInstance2> allInstances, boolean withLemmatization, boolean goldVerbs) { 
 		this.allInstances = allInstances;
 		this.withLemmatization = withLemmatization; 
 		if( withLemmatization ){ 		
 			String configFile = "config/lemmatizerConfig.txt"; 
+			//String configFile = "/shared/corpora/khashab2/lemmatizerConfig.txt"; 
+			//String configFile = "/shared/shelley/khashab2/coref_with_cooccurance_data/config/lemmatizerConfig.txt"; 
 			try
 			{
 				AugmentedLemmatizer.init( configFile );

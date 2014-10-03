@@ -338,8 +338,9 @@ public class FeatureExtractor {
 	}
 	
 	// the more efficient version of Extract() 
-	// the final extraction algorithm here s
-	public double[] Extract2() throws Exception { 
+	// the final extraction algorithm here 
+	// option: can take 0 and 1. For zero or one as input, it swaps the features corresponding to antecedent1 and antecedent2. 
+	public double[] Extract2(int option) throws Exception { 
 		if(ins == null || fp == null || this.instance_num == -1 /*|| ta == null */ )
 			throw new Exception(); 
 		if( antecend1_verb_start_word_offset == -1 
@@ -425,7 +426,7 @@ public class FeatureExtractor {
 		// all the toks must be found in the hashmap 
 		for( int i = 0; i < toks.length; i++) { 
 			if( !fp.tokenMap.containsKey(toks[i]) ) {
-				if( i == connective_word_start_word_offset  ) //&& i < connective_word_end_word_offset
+				if( i == connective_word_start_word_offset ) //&& i < connective_word_end_word_offset
 					continue;
 				throw new Exception();
 			}
@@ -475,10 +476,12 @@ public class FeatureExtractor {
 		int h_a2_v_a2 = fp.pairwiseDependentMap.get( new Pair(toks[antecend2_head_start_word_offset], toks[antecend2_verb_start_word_offset]) ); 
 
 		int v_a1_v_a2 = fp.pairwiseDependentMap.get( new Pair(toks[antecend1_verb_start_word_offset], toks[antecend2_verb_start_word_offset]) ); 
+		int v_a2_v_a1 = fp.pairwiseDependentMap.get( new Pair(toks[antecend2_verb_start_word_offset], toks[antecend1_verb_start_word_offset]) ); 
 		int v_a1_v_p = fp.pairwiseDependentMap.get( new Pair(toks[antecend1_verb_start_word_offset], toks[pronoun_verb_start_word_offset]) ); 
 		int v_a2_v_p = fp.pairwiseDependentMap.get( new Pair(toks[antecend2_verb_start_word_offset], toks[pronoun_verb_start_word_offset]) ); 
 
-		double[] bigram_features_dependent = new double[fp.pairwiseDependentMap.size()];
+		double[] bigram_features_dependent_first_a1 = new double[fp.pairwiseDependentMap.size()];
+		double[] bigram_features_dependent_first_a2 = new double[fp.pairwiseDependentMap.size()];
 		
 		//System.out.println("head_noun_a1 = " + head_noun_a1); 
 		//System.out.println("head_noun_a2 = " + head_noun_a2); 
@@ -488,29 +491,39 @@ public class FeatureExtractor {
 		//System.out.println("head_verb_p = " + head_verb_p);
 		//System.out.println("connective = " + connective); 
 		//System.out.println("Size of the tokens = " + toks.length); 
-				
+		
+		
+		// symmetric 		
 		//		H(A1)-V(A1)
+		bigram_features_dependent_first_a1[ h_a1_v_a1 ] = 1;
 		//		H(A1)-V(P)
+		bigram_features_dependent_first_a2[ h_a1_v_p ] = 1;
 		//		H(A1)-V(A2)
-		bigram_features_dependent[ h_a1_v_a1 ] = 1;
-		bigram_features_dependent[ h_a1_v_p ] = 1;
-		bigram_features_dependent[ h_a1_v_a2 ] = 1;		
-		
-		//		H(A2)-V(A1)
-		//		H(A2)-V(P)
-		//		H(A2)-V(A2)
-		bigram_features_dependent[ h_a2_v_a1 ] = 1;
-		bigram_features_dependent[ h_a2_v_p ] = 1;
-		bigram_features_dependent[ h_a2_v_a2 ] = 1;		
-
+		bigram_features_dependent_first_a1[ h_a1_v_a2 ] = 1;		
 		//		V(A1)-V(A2)
+		bigram_features_dependent_first_a1[ v_a1_v_a2 ] = 1;
 		//		V(A1)-V(P)
+		bigram_features_dependent_first_a1[ v_a1_v_p ] = 1;
+
+		//		H(A2)-V(P)
+		bigram_features_dependent_first_a2[ h_a2_v_p ] = 1;
+		//		H(A2)-V(A1)
+		bigram_features_dependent_first_a2[ h_a2_v_a1 ] = 1;		
+		//		H(A2)-V(A2)
+		bigram_features_dependent_first_a2[ h_a2_v_a2 ] = 1;
 		//		V(A2)-V(P)
-		bigram_features_dependent[ v_a1_v_a2 ] = 1;
-		bigram_features_dependent[ v_a1_v_p ] = 1;
-		bigram_features_dependent[ v_a2_v_p ] = 1;
+		bigram_features_dependent_first_a2[ v_a2_v_p ] = 1;
+		//		V(A2)-V(A1)
+		bigram_features_dependent_first_a2[ v_a2_v_a1 ] = 1;
 		
-		featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent);
+		if( option == 0) { 
+			featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent_first_a1);
+			featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent_first_a2);
+		} else if( option == 1) { 
+			featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent_first_a2);
+			featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent_first_a1);			
+		} else 
+			throw new Exception(); 
 /*		
 		double[] narrative_schema_features=new double[12];
 		narrative_schema_features[0]=antecend1_generalScore;
@@ -991,6 +1004,7 @@ public class FeatureExtractor {
 		Pair<String, String> pair_h_a2_v_p = new Pair(toks[antecend2_head_start_word_offset], toks[pronoun_verb_start_word_offset]); 
 		Pair<String, String> pair_h_a2_v_a2 = new Pair(toks[antecend2_head_start_word_offset], toks[antecend2_verb_start_word_offset]); 
 		Pair<String, String> pair_v_a1_v_a2 = new Pair(toks[antecend1_verb_start_word_offset], toks[antecend2_verb_start_word_offset]); 
+		Pair<String, String> pair_v_a2_v_a1 = new Pair(toks[antecend2_verb_start_word_offset], toks[antecend1_verb_start_word_offset]); 
 		Pair<String, String> pair_v_a1_v_p = new Pair(toks[antecend1_verb_start_word_offset], toks[pronoun_verb_start_word_offset]); 
 		Pair<String, String> pair_v_a2_v_p = new Pair(toks[antecend2_verb_start_word_offset], toks[pronoun_verb_start_word_offset]); 
 		
@@ -1010,10 +1024,13 @@ public class FeatureExtractor {
 			fp.pairwiseDependentMap.put( pair_h_a2_v_a2, fp.pairwiseDependentMap.size() );
 		if( !fp.pairwiseDependentMap.containsKey( pair_v_a1_v_a2 ) ) 
 			fp.pairwiseDependentMap.put( pair_v_a1_v_a2, fp.pairwiseDependentMap.size() );
+		if( !fp.pairwiseDependentMap.containsKey( pair_v_a2_v_a1 ) ) 
+			fp.pairwiseDependentMap.put( pair_v_a2_v_a1, fp.pairwiseDependentMap.size() );
 		if( !fp.pairwiseDependentMap.containsKey( pair_v_a1_v_p ) ) 
 			fp.pairwiseDependentMap.put( pair_v_a1_v_p, fp.pairwiseDependentMap.size() );
 		if( !fp.pairwiseDependentMap.containsKey( pair_v_a2_v_p ) ) 
 			fp.pairwiseDependentMap.put( pair_v_a2_v_p, fp.pairwiseDependentMap.size() );
+		
 		
 		// pairwise dependent table 
 /*		if( !fp.pairwiseDependentMap.containsKey( toks[antecend1_head_start_word_offset] ) ) 

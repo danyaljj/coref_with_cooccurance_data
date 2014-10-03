@@ -81,7 +81,7 @@ public class featureExtractorTest {
 			double[] featureVector = null; 
 			FeatureExtractor fe = featureExtractors[instance_num]; 
 			try {
-				featureVector = fe.Extract2();
+				featureVector = fe.Extract2(1);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
