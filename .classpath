@@ -32,5 +32,6 @@
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-0.9.17.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="lib/mapdb-1.0.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

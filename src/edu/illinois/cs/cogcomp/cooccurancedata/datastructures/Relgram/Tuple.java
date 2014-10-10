@@ -7,14 +7,16 @@ import java.io.Serializable;
  */
 public class Tuple implements Serializable {
 
+	public String arg1_headnoun;
 	public String arg1_surface;
 	public String arg1_type; 
 	public boolean arg1_type_equals; 
 	public String relation; 
 	public String arg2_surface; 
-	public String arg2_type; 
+	public String arg2_headnoun; 
+	public String arg2_type;
 	public boolean arg2_type_equals; 
-	public Long count; 
+	public Long count;
 	
 	@Override 
 	public boolean equals(Object o) { 
