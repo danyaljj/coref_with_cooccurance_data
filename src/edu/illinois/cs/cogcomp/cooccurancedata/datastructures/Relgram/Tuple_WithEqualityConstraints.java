@@ -34,12 +34,22 @@ public class Tuple_WithEqualityConstraints implements Serializable, Comparable<T
         	return false; 
         if( oo.arg2_type.length() != this.arg2_type.length() )
         	return false; 
+        if( oo.arg1_XVAR != this.arg1_XVAR )
+        	return false;         	
+        if( oo.arg2_XVAR != this.arg2_XVAR )
+        	return false;         	
+        if( oo.arg1_YVAR != this.arg1_YVAR )
+        	return false;         	
+        if( oo.arg2_YVAR != this.arg2_YVAR )
+        	return false;
         if( !oo.arg1_type.equals( this.arg1_type ) )
         	return false; 
         if( !oo.arg2_type.equals( this.arg2_type ) )
         	return false; 
         if( !oo.relation.equals( this.relation ) )
         	return false;         	
+
+        
         return true; 
 	}
 	
