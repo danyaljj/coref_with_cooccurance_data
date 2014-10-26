@@ -23,7 +23,7 @@ public class JNI_SVMLight_Test {
  
 	public static int N = 0;
 
-	public static int M = 63834; //18468506
+	public static int M = 71125; //18468506
 
 	public static void main(String[] args) throws Exception {
 	  PronounDisambiguationDataReader pr = new PronounDisambiguationDataReader(); 
@@ -31,6 +31,7 @@ public class JNI_SVMLight_Test {
 	  
 	  NarrativeSchemaReader nsreader=new NarrativeSchemaReader();
 	  ArrayList<NarrativeSchemaInstance> allInstances = nsreader.readSchema(6); // 6,8,10,12
+	  
 	  // feature pre-processor 
 	  FeaturePreprocessor fp = new FeaturePreprocessor( pr.allInstances_withAntecedentAnnotations, true, true);
 	  fp.readInstanceVerbs();
@@ -134,11 +135,16 @@ public class JNI_SVMLight_Test {
 			  }
 			  else {
 				  bw.write("Wrong: "+ins.sentence+"\t"+men+"\t"+pred+"\t"+"\n");
+				  //bw.write(ins.sentence+"\n");
+				  //bw.write(ins.pronoun+"\n");
+				  //bw.write(ins.antecedent1+","+ins.antecedent2+"\n");
+				  //bw.write(ins.correct_antecedent+"\n");
+				  //bw.write("\n");
 			  }
 			  
 			  p++;
 			  if (p%2==0) {
-				  bw.write("\n");
+			  	  bw.write("\n");
 			  }
 		  }
 		  test_num++;
@@ -151,9 +157,9 @@ public class JNI_SVMLight_Test {
     //TODO Verb normalization for Narrative Schema
 	
 	public static LabeledFeatureVector getFeatureVector(WinogradCorefInstance2 ins, FeatureExtractor fe) throws Exception {
-	  double[] featureVector = fe.Extract2(0);
+	  double[] featureVector = fe.Extract2(1);
 	  
-	  //System.out.println(featureVector.length);
+	  // System.out.println(featureVector.length);
 	  
 	  int dim=0;
 	  for (int i=0;i<featureVector.length;i++) {

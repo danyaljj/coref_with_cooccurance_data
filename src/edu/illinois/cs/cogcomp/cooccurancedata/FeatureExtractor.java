@@ -524,7 +524,7 @@ public class FeatureExtractor {
 			featuresAll = ArrayUtils.addAll(featuresAll, bigram_features_dependent_first_a1);			
 		} else 
 			throw new Exception(); 
-/*		
+		
 		double[] narrative_schema_features=new double[12];
 		narrative_schema_features[0]=antecend1_generalScore;
 		narrative_schema_features[1]=antecend1_verbScore1;
@@ -538,14 +538,14 @@ public class FeatureExtractor {
 		narrative_schema_features[9]=antecend2_roleScoreMin;
 		narrative_schema_features[10]=antecend2_roleScoreMax;
 		narrative_schema_features[11]=antecend2_roleScoreAvg;
-*/
+/*
 		double[] narrative_schema_features=new double[2];
 		if (antecend1_generalScore>0) narrative_schema_features[0]=1;
 		else narrative_schema_features[0]=0;
 		if (antecend2_generalScore>0) narrative_schema_features[1]=1;
 		else narrative_schema_features[1]=0;
-		
-//		featuresAll = ArrayUtils.addAll(featuresAll, narrative_schema_features);
+*/		
+		featuresAll = ArrayUtils.addAll(featuresAll, narrative_schema_features);
 		
 		return featuresAll; 
 	}
@@ -851,8 +851,10 @@ public class FeatureExtractor {
 			e.printStackTrace();
 		}
 
-		View srlvu = ta.getView("SRL"); 
-
+		View srlvu = ta.getView("SRL");
+		//System.out.println(srlvu.getConstituents().get(2).getIncomingRelations().get(0).getSource());
+        //System.exit(1);
+		
 		int start=0, end=0;
 		if (p==1) {
 			start=ins.antecedent1_token_start;
@@ -934,7 +936,7 @@ public class FeatureExtractor {
 		List<Constituent> consts = srlvu.getConstituents();
 		for (Constituent conIns : consts ) { 
 			if (conIns.getSurfaceString().equals(verb)) { 
-				List<Relation> incomRel = conIns.getIncomingRelations();
+				List<Relation> incomRel = conIns.getOutgoingRelations();
 				for( Relation rel : incomRel) {
 					if (rel.getRelationName().equals("A0")) {
 						Constituent c=rel.getTarget();

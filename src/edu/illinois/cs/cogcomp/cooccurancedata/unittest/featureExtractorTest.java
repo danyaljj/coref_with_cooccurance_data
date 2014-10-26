@@ -57,8 +57,8 @@ public class featureExtractorTest {
 			fe.extractConnective(); 
 			fe.updateTables(); 
 			fe.setNarrativeSchema(allInstances);
-			fe.extractNarrativeSchema(1);
-			fe.extractNarrativeSchema(2);
+			// fe.extractNarrativeSchema(1);
+			// fe.extractNarrativeSchema(2);
 			featureExtractors[instance_num] = fe; 
 			instance_num++; 
 		}
@@ -107,7 +107,7 @@ public class featureExtractorTest {
 			instance_num++;
 			
 
-			//System.out.println( "featureVector.length = " + featureVector.length ); 
+			// System.out.println( "featureVector.length = " + featureVector.length ); 
 		}
 		
 		bw1.close();bw2.close();

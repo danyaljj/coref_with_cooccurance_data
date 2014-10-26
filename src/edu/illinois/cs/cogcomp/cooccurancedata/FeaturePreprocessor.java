@@ -62,7 +62,7 @@ public class FeaturePreprocessor {
 	}
 
 	public void readInstanceVerbs() { 		
-		String folder = "/shared/experiments/khashab2/workspace1/EventCooccurance/docs/extractedVerbs_withManualAnnotatation2/";
+		String folder = "/shared/experiments/khashab2/workspace2/EventCooccurance/docs/extractedVerbs_withManualAnnotatation2/";
 		
 		// antecedents 
 		int lineIter = 0; 
